@@ -1,0 +1,783 @@
+/**
+ * True Impulse Drop 01 - Styles
+ *
+ * Mobile-first, accessible, with reduced-motion support
+ */
+
+/* ==========================================================================
+   CSS Custom Properties
+   ========================================================================== */
+
+:root {
+    --tid-black: #000000;
+    --tid-near-black: #0a0a0a;
+    --tid-dark-gray: #1a1a1a;
+    --tid-mid-gray: #666666;
+    --tid-silver: #c0c0c0;
+    --tid-light-gray: #e0e0e0;
+    --tid-white: #ffffff;
+
+    --tid-font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+    --tid-touch-target: 48px;
+    --tid-border-radius: 4px;
+
+    --tid-transition-fast: 150ms ease;
+    --tid-transition-normal: 300ms ease;
+    --tid-transition-slow: 600ms ease;
+
+    --tid-z-canvas: 1;
+    --tid-z-product: 2;
+    --tid-z-cta: 10;
+    --tid-z-drawer: 20;
+    --tid-z-tray: 30;
+    --tid-z-loading: 100;
+}
+
+/* ==========================================================================
+   Base / Reset
+   ========================================================================== */
+
+.tid-drop {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    min-height: 100dvh;
+    background: var(--tid-black);
+    color: var(--tid-white);
+    font-family: var(--tid-font-sans);
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.tid-drop *,
+.tid-drop *::before,
+.tid-drop *::after {
+    box-sizing: border-box;
+}
+
+/* Screen reader only */
+.screen-reader-text {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+/* Skip link */
+.tid-skip-link:focus {
+    position: fixed !important;
+    top: 10px;
+    left: 10px;
+    width: auto !important;
+    height: auto !important;
+    padding: 12px 24px;
+    clip: auto !important;
+    background: var(--tid-white);
+    color: var(--tid-black);
+    font-weight: 600;
+    z-index: 9999;
+    text-decoration: none;
+}
+
+/* ==========================================================================
+   Loading State (S0)
+   ========================================================================== */
+
+.tid-loading {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--tid-black);
+    z-index: var(--tid-z-loading);
+    transition: opacity var(--tid-transition-slow);
+}
+
+.tid-drop[data-state="field"] .tid-loading,
+.tid-drop[data-state="formation"] .tid-loading,
+.tid-drop[data-state="reveal"] .tid-loading,
+.tid-drop[data-state="detail"] .tid-loading,
+.tid-drop[data-state="purchase"] .tid-loading {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.tid-loading__wordmark {
+    font-size: clamp(1rem, 4vw, 1.5rem);
+    font-weight: 300;
+    letter-spacing: 0.4em;
+    color: var(--tid-silver);
+}
+
+.tid-loading__indicator {
+    margin-top: 24px;
+    width: 40px;
+    height: 2px;
+    background: var(--tid-dark-gray);
+    position: relative;
+    overflow: hidden;
+}
+
+.tid-loading__indicator::after {
+    content: '';
+    position: absolute;
+    left: -40px;
+    width: 40px;
+    height: 100%;
+    background: var(--tid-silver);
+    animation: tid-loading-slide 1s ease-in-out infinite;
+}
+
+@keyframes tid-loading-slide {
+    0% { left: -40px; }
+    50% { left: 40px; }
+    100% { left: -40px; }
+}
+
+/* ==========================================================================
+   Canvas / Visual Field (S1)
+   ========================================================================== */
+
+.tid-field-container {
+    position: fixed;
+    inset: 0;
+    z-index: var(--tid-z-canvas);
+}
+
+.tid-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+    cursor: crosshair;
+}
+
+.tid-canvas:focus {
+    outline: 2px solid var(--tid-silver);
+    outline-offset: -2px;
+}
+
+/* ==========================================================================
+   Product Reveal (S3)
+   ========================================================================== */
+
+.tid-product-reveal {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: var(--tid-z-product);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity var(--tid-transition-slow);
+}
+
+.tid-drop[data-state="reveal"] .tid-product-reveal,
+.tid-drop[data-state="detail"] .tid-product-reveal,
+.tid-drop[data-state="purchase"] .tid-product-reveal {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.tid-product-image {
+    max-width: 80%;
+    max-height: 70vh;
+}
+
+.tid-product-image img {
+    display: block;
+    max-width: 100%;
+    max-height: 70vh;
+    object-fit: contain;
+    filter: grayscale(100%) contrast(1.1);
+}
+
+.tid-product-image__placeholder {
+    width: 300px;
+    height: 400px;
+    background: var(--tid-dark-gray);
+    border: 1px solid var(--tid-mid-gray);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--tid-mid-gray);
+    font-size: 0.875rem;
+    letter-spacing: 0.1em;
+}
+
+/* ==========================================================================
+   Materialize CTA
+   ========================================================================== */
+
+.tid-materialize-btn {
+    position: fixed;
+    bottom: 140px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: var(--tid-z-cta);
+
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 32px;
+    min-height: var(--tid-touch-target);
+
+    background: transparent;
+    border: 1px solid var(--tid-silver);
+    color: var(--tid-white);
+    font-family: var(--tid-font-sans);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+
+    cursor: pointer;
+    transition: all var(--tid-transition-normal);
+}
+
+.tid-materialize-btn:hover,
+.tid-materialize-btn:focus {
+    background: var(--tid-white);
+    color: var(--tid-black);
+    outline: none;
+}
+
+.tid-materialize-btn:focus-visible {
+    outline: 2px solid var(--tid-silver);
+    outline-offset: 4px;
+}
+
+.tid-materialize-btn__icon {
+    width: 8px;
+    height: 8px;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    transition: transform var(--tid-transition-fast);
+}
+
+.tid-materialize-btn:hover .tid-materialize-btn__icon {
+    transform: scale(1.5);
+}
+
+/* Hide after activation */
+.tid-drop[data-state="formation"] .tid-materialize-btn,
+.tid-drop[data-state="reveal"] .tid-materialize-btn,
+.tid-drop[data-state="detail"] .tid-materialize-btn,
+.tid-drop[data-state="purchase"] .tid-materialize-btn {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* ==========================================================================
+   Media Drawer (S4)
+   ========================================================================== */
+
+.tid-media-drawer {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: var(--tid-z-drawer);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--tid-transition-normal);
+}
+
+.tid-media-drawer[aria-hidden="false"] {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.tid-media-drawer__close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: var(--tid-touch-target);
+    height: var(--tid-touch-target);
+    background: transparent;
+    border: 1px solid var(--tid-mid-gray);
+    color: var(--tid-white);
+    font-size: 1.5rem;
+    cursor: pointer;
+    z-index: 1;
+    transition: border-color var(--tid-transition-fast);
+}
+
+.tid-media-drawer__close:hover {
+    border-color: var(--tid-white);
+}
+
+.tid-media-carousel {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.tid-media-carousel__track {
+    flex: 1;
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+}
+
+.tid-media-carousel__slide {
+    flex: 0 0 100%;
+    scroll-snap-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+}
+
+.tid-media-carousel__slide img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    filter: grayscale(100%) contrast(1.1);
+}
+
+.tid-media-carousel__nav {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px;
+}
+
+.tid-media-carousel__nav button {
+    padding: 12px 16px;
+    min-height: 44px;
+    background: transparent;
+    border: 1px solid var(--tid-mid-gray);
+    color: var(--tid-silver);
+    font-family: var(--tid-font-sans);
+    font-size: 0.625rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all var(--tid-transition-fast);
+}
+
+.tid-media-carousel__nav button[aria-selected="true"] {
+    background: var(--tid-white);
+    border-color: var(--tid-white);
+    color: var(--tid-black);
+}
+
+/* Founder Video */
+.tid-media-carousel__slide--video {
+    position: relative;
+}
+
+.tid-founder-video {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.tid-video-control {
+    position: absolute;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: var(--tid-touch-target);
+    height: var(--tid-touch-target);
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid var(--tid-silver);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tid-video-control__play,
+.tid-video-control__pause {
+    width: 0;
+    height: 0;
+}
+
+.tid-video-control__play {
+    border-left: 10px solid var(--tid-white);
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    margin-left: 3px;
+}
+
+.tid-video-control__pause {
+    display: none;
+    width: 12px;
+    height: 12px;
+    border-left: 3px solid var(--tid-white);
+    border-right: 3px solid var(--tid-white);
+}
+
+.tid-founder-video.playing ~ .tid-video-control .tid-video-control__play {
+    display: none;
+}
+
+.tid-founder-video.playing ~ .tid-video-control .tid-video-control__pause {
+    display: block;
+}
+
+/* ==========================================================================
+   Purchase Tray (S5)
+   ========================================================================== */
+
+.tid-purchase-tray {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.9);
+    border-top: 1px solid var(--tid-dark-gray);
+    z-index: var(--tid-z-tray);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.tid-purchase-tray__header {
+    min-height: 60px;
+}
+
+.tid-purchase-tray__toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    background: transparent;
+    border: none;
+    color: var(--tid-white);
+    font-family: var(--tid-font-sans);
+    cursor: pointer;
+    text-align: left;
+}
+
+.tid-purchase-tray__product-name {
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+}
+
+.tid-purchase-tray__price {
+    font-size: 0.875rem;
+    color: var(--tid-silver);
+}
+
+.tid-purchase-tray__expand-icon {
+    width: 12px;
+    height: 12px;
+    border-right: 1px solid var(--tid-silver);
+    border-bottom: 1px solid var(--tid-silver);
+    transform: rotate(-135deg);
+    transition: transform var(--tid-transition-fast);
+}
+
+.tid-purchase-tray__toggle[aria-expanded="true"] .tid-purchase-tray__expand-icon {
+    transform: rotate(45deg);
+}
+
+.tid-purchase-tray__content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height var(--tid-transition-normal);
+}
+
+.tid-purchase-tray__toggle[aria-expanded="true"] + .tid-purchase-tray__content {
+    max-height: 300px;
+}
+
+/* ==========================================================================
+   Size Selector
+   ========================================================================== */
+
+.tid-size-selector {
+    border: none;
+    margin: 0;
+    padding: 0 20px 16px;
+}
+
+.tid-size-selector__options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.tid-size-btn {
+    flex: 0 0 auto;
+    min-width: var(--tid-touch-target);
+    min-height: var(--tid-touch-target);
+    padding: 12px 16px;
+    background: transparent;
+    border: 1px solid var(--tid-mid-gray);
+    color: var(--tid-white);
+    font-family: var(--tid-font-sans);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all var(--tid-transition-fast);
+    position: relative;
+}
+
+.tid-size-btn:hover:not(:disabled) {
+    border-color: var(--tid-white);
+}
+
+.tid-size-btn:focus-visible {
+    outline: 2px solid var(--tid-silver);
+    outline-offset: 2px;
+}
+
+.tid-size-btn[aria-checked="true"] {
+    background: var(--tid-white);
+    border-color: var(--tid-white);
+    color: var(--tid-black);
+}
+
+.tid-size-btn--sold-out {
+    color: var(--tid-mid-gray);
+    border-color: var(--tid-dark-gray);
+    cursor: not-allowed;
+}
+
+.tid-size-btn--sold-out .tid-size-btn__label {
+    text-decoration: line-through;
+}
+
+.tid-size-btn__status {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    padding: 2px 6px;
+    background: var(--tid-dark-gray);
+    font-size: 0.5rem;
+    letter-spacing: 0.05em;
+}
+
+/* ==========================================================================
+   Purchase Actions
+   ========================================================================== */
+
+.tid-purchase-actions {
+    padding: 0 20px 20px;
+}
+
+.tid-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: var(--tid-touch-target);
+    padding: 16px 24px;
+    border: none;
+    font-family: var(--tid-font-sans);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all var(--tid-transition-fast);
+}
+
+.tid-btn--primary {
+    background: var(--tid-white);
+    color: var(--tid-black);
+}
+
+.tid-btn--primary:hover:not(:disabled) {
+    background: var(--tid-silver);
+}
+
+.tid-btn--primary:disabled {
+    background: var(--tid-dark-gray);
+    color: var(--tid-mid-gray);
+    cursor: not-allowed;
+}
+
+.tid-btn--primary:focus-visible {
+    outline: 2px solid var(--tid-silver);
+    outline-offset: 2px;
+}
+
+.tid-btn__loading {
+    display: none;
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--tid-mid-gray);
+    border-top-color: var(--tid-black);
+    border-radius: 50%;
+    animation: tid-spin 0.8s linear infinite;
+    margin-left: 8px;
+}
+
+.tid-btn.loading .tid-btn__text {
+    opacity: 0.5;
+}
+
+.tid-btn.loading .tid-btn__loading {
+    display: block;
+}
+
+@keyframes tid-spin {
+    to { transform: rotate(360deg); }
+}
+
+.tid-cart-error {
+    margin-top: 12px;
+    padding: 12px;
+    background: rgba(255, 100, 100, 0.1);
+    border: 1px solid rgba(255, 100, 100, 0.3);
+    color: #ff9999;
+    font-size: 0.75rem;
+    text-align: center;
+    display: none;
+}
+
+.tid-cart-error:not(:empty) {
+    display: block;
+}
+
+.tid-fallback-link {
+    display: block;
+    margin-top: 12px;
+    color: var(--tid-mid-gray);
+    font-size: 0.625rem;
+    letter-spacing: 0.1em;
+    text-align: center;
+    text-decoration: underline;
+}
+
+/* ==========================================================================
+   Fallback View (S6) / No JS
+   ========================================================================== */
+
+.tid-fallback {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    background: var(--tid-black);
+    color: var(--tid-white);
+}
+
+.tid-fallback__image {
+    max-width: 300px;
+    margin-bottom: 32px;
+}
+
+.tid-fallback__image img {
+    width: 100%;
+    filter: grayscale(100%);
+}
+
+.tid-fallback__info {
+    text-align: center;
+}
+
+.tid-fallback__info h1 {
+    font-size: 1rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin: 0 0 8px;
+}
+
+.tid-fallback__price {
+    color: var(--tid-silver);
+    margin: 0 0 24px;
+}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+
+@media (min-width: 640px) {
+    .tid-materialize-btn {
+        bottom: 160px;
+        padding: 20px 48px;
+    }
+
+    .tid-purchase-tray__toggle {
+        padding: 20px 32px;
+    }
+
+    .tid-size-selector {
+        padding: 0 32px 20px;
+    }
+
+    .tid-purchase-actions {
+        padding: 0 32px 24px;
+    }
+
+    .tid-size-btn {
+        min-width: 56px;
+        padding: 14px 20px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .tid-purchase-tray {
+        left: auto;
+        right: 32px;
+        bottom: 32px;
+        width: 360px;
+        border: 1px solid var(--tid-dark-gray);
+        border-radius: var(--tid-border-radius);
+    }
+
+    .tid-materialize-btn {
+        bottom: 180px;
+    }
+}
+
+/* ==========================================================================
+   Reduced Motion
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    .tid-loading__indicator::after {
+        animation: none;
+        left: 0;
+    }
+
+    .tid-btn__loading {
+        animation: none;
+    }
+
+    .tid-drop,
+    .tid-drop * {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+    }
+}
+
+/* ==========================================================================
+   High Contrast Mode
+   ========================================================================== */
+
+@media (prefers-contrast: high) {
+    .tid-size-btn {
+        border-width: 2px;
+    }
+
+    .tid-btn--primary {
+        border: 2px solid var(--tid-white);
+    }
+
+    .tid-materialize-btn {
+        border-width: 2px;
+    }
+}

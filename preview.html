@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>True Impulse Drop 01 - Preview</title>
+    <link rel="stylesheet" href="assets/css/drop-01.css">
+    <style>
+        /* Preview-specific overrides */
+        * { margin: 0; padding: 0; }
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+        }
+        .screen-reader-text {
+            position: absolute !important;
+            width: 1px !important;
+            height: 1px !important;
+            padding: 0 !important;
+            margin: -1px !important;
+            overflow: hidden !important;
+            clip: rect(0, 0, 0, 0) !important;
+            white-space: nowrap !important;
+            border: 0 !important;
+        }
+    </style>
+</head>
+<body>
+
+<div id="tid-drop" class="tid-drop" data-state="loading" role="main">
+    <!-- Skip link for accessibility -->
+    <a href="#tid-purchase-tray" class="tid-skip-link screen-reader-text">
+        Skip to purchase options
+    </a>
+
+    <!-- Loading State (S0) -->
+    <div class="tid-loading" aria-live="polite">
+        <div class="tid-loading__wordmark">TRUE IMPULSE</div>
+        <div class="tid-loading__indicator" role="status">
+            <span class="screen-reader-text">Loading experience...</span>
+        </div>
+    </div>
+
+    <!-- Visual Field Canvas (S1) -->
+    <div class="tid-field-container">
+        <canvas
+            id="tid-canvas"
+            class="tid-canvas"
+            aria-label="Interactive visual field - tap or drag to create ripples"
+            role="img"
+            tabindex="0"
+        ></canvas>
+
+        <!-- Hidden description for screen readers -->
+        <div id="tid-canvas-desc" class="screen-reader-text">
+            An abstract monochrome geometry field that responds to touch with ripple effects. Tap the Materialize button to reveal the garment.
+        </div>
+    </div>
+
+    <!-- Product Reveal Layer (S3) -->
+    <div class="tid-product-reveal" aria-hidden="true">
+        <div class="tid-product-image tid-product-image--front">
+            <div class="tid-product-image__placeholder">
+                <span>Product Image</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Materialize CTA -->
+    <button
+        type="button"
+        id="tid-materialize-btn"
+        class="tid-materialize-btn"
+        aria-describedby="tid-materialize-desc"
+    >
+        <span class="tid-materialize-btn__text">MATERIALIZE</span>
+        <span class="tid-materialize-btn__icon" aria-hidden="true"></span>
+    </button>
+    <span id="tid-materialize-desc" class="screen-reader-text">
+        Activate to transform the abstract field into the product
+    </span>
+
+    <!-- Media Drawer (S4) -->
+    <div id="tid-media-drawer" class="tid-media-drawer" aria-hidden="true">
+        <button type="button" class="tid-media-drawer__close" aria-label="Close gallery">
+            <span aria-hidden="true">&times;</span>
+        </button>
+
+        <div class="tid-media-carousel" role="region" aria-label="Product gallery">
+            <div class="tid-media-carousel__track">
+                <!-- Front -->
+                <div class="tid-media-carousel__slide" data-slide="front">
+                    <div class="tid-product-image__placeholder"><span>Front</span></div>
+                </div>
+                <!-- Back -->
+                <div class="tid-media-carousel__slide" data-slide="back">
+                    <div class="tid-product-image__placeholder"><span>Back</span></div>
+                </div>
+                <!-- Detail -->
+                <div class="tid-media-carousel__slide" data-slide="detail">
+                    <div class="tid-product-image__placeholder"><span>Detail</span></div>
+                </div>
+                <!-- Founder Video -->
+                <div class="tid-media-carousel__slide tid-media-carousel__slide--video" data-slide="video">
+                    <div class="tid-product-image__placeholder"><span>Video</span></div>
+                    <button type="button" class="tid-video-control" aria-label="Play/Pause video">
+                        <span class="tid-video-control__play" aria-hidden="true"></span>
+                        <span class="tid-video-control__pause" aria-hidden="true"></span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Carousel Navigation -->
+            <div class="tid-media-carousel__nav" role="tablist">
+                <button type="button" role="tab" aria-selected="true" data-target="front">Front</button>
+                <button type="button" role="tab" aria-selected="false" data-target="back">Back</button>
+                <button type="button" role="tab" aria-selected="false" data-target="detail">Detail</button>
+                <button type="button" role="tab" aria-selected="false" data-target="video">Video</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Purchase Tray (S5) - Always Accessible -->
+    <div id="tid-purchase-tray" class="tid-purchase-tray">
+        <div class="tid-purchase-tray__header">
+            <button type="button" class="tid-purchase-tray__toggle" aria-expanded="false" aria-controls="tid-purchase-content">
+                <span class="tid-purchase-tray__product-name">True Impulse Drop 01</span>
+                <span class="tid-purchase-tray__price">$120.00</span>
+                <span class="tid-purchase-tray__expand-icon" aria-hidden="true"></span>
+            </button>
+        </div>
+
+        <div id="tid-purchase-content" class="tid-purchase-tray__content">
+            <!-- Size Selection -->
+            <fieldset class="tid-size-selector">
+                <legend class="screen-reader-text">Select size</legend>
+                <div class="tid-size-selector__options" role="radiogroup" aria-label="Available sizes">
+                    <button
+                        type="button"
+                        class="tid-size-btn"
+                        data-variation-id="1"
+                        data-size="S"
+                        role="radio"
+                        aria-checked="false"
+                    >
+                        <span class="tid-size-btn__label">S</span>
+                    </button>
+                    <button
+                        type="button"
+                        class="tid-size-btn"
+                        data-variation-id="2"
+                        data-size="M"
+                        role="radio"
+                        aria-checked="false"
+                    >
+                        <span class="tid-size-btn__label">M</span>
+                    </button>
+                    <button
+                        type="button"
+                        class="tid-size-btn"
+                        data-variation-id="3"
+                        data-size="L"
+                        role="radio"
+                        aria-checked="false"
+                    >
+                        <span class="tid-size-btn__label">L</span>
+                    </button>
+                    <button
+                        type="button"
+                        class="tid-size-btn tid-size-btn--sold-out"
+                        data-variation-id="4"
+                        data-size="XL"
+                        disabled
+                        aria-disabled="true"
+                        role="radio"
+                        aria-checked="false"
+                    >
+                        <span class="tid-size-btn__label">XL</span>
+                        <span class="tid-size-btn__status">Sold Out</span>
+                    </button>
+                </div>
+            </fieldset>
+
+            <!-- Add to Cart / Checkout -->
+            <div class="tid-purchase-actions">
+                <button
+                    type="button"
+                    id="tid-add-to-cart"
+                    class="tid-btn tid-btn--primary tid-add-to-cart"
+                    disabled
+                    data-product-id="0"
+                >
+                    <span class="tid-btn__text">Select Size</span>
+                    <span class="tid-btn__loading" aria-hidden="true"></span>
+                </button>
+
+                <!-- Error message area -->
+                <div id="tid-cart-error" class="tid-cart-error" role="alert" aria-live="polite"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden data for JavaScript -->
+    <script type="application/json" id="tid-mask-data">
+        {"maskUrl": "assets/img/garment-mask.svg"}
+    </script>
+</div>
+
+<!-- Demo config -->
+<script>
+    window.tidConfig = {
+        product: {
+            id: 0,
+            name: 'True Impulse Drop 01',
+            price: '120.00',
+            is_demo: true
+        },
+        checkout_url: '#checkout',
+        i18n: {
+            add_to_cart: 'Add to Cart',
+            added: 'Added!',
+            checkout: 'Checkout',
+            select_size: 'Select Size',
+            sold_out: 'Sold Out',
+            error: 'Error adding to cart'
+        }
+    };
+</script>
+
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+<!-- Visual Field -->
+<script src="assets/js/visual-field.js"></script>
+
+<!-- Image Ripple -->
+<script src="assets/js/image-ripple.js"></script>
+
+<!-- Main Controller -->
+<script src="assets/js/drop-01.js"></script>
+
+</body>
+</html>

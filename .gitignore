@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+vendor/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+
+# Build artifacts
+dist/
+build/
+
+# Environment
+.env
+.env.local
+
+# WordPress uploads (if accidentally placed here)
+uploads/
+
+# Large media files (add your own)
+*.mp4
+*.mov
+*.avi
+*.webm
+
+# Keep placeholder directories
+!assets/video/.gitkeep
+!assets/img/.gitkeep

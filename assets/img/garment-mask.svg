@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" fill="none" stroke="#fff" stroke-width="1">
+  <!-- T-shirt silhouette -->
+  <path d="
+    M 120 80
+    L 80 100
+    L 40 140
+    L 60 160
+    L 100 130
+    L 100 420
+    L 300 420
+    L 300 130
+    L 340 160
+    L 360 140
+    L 320 100
+    L 280 80
+    L 260 80
+    Q 240 120 200 120
+    Q 160 120 140 80
+    Z
+  " />
+
+  <!-- Collar detail -->
+  <path d="
+    M 160 82
+    Q 180 100 200 100
+    Q 220 100 240 82
+  " />
+
+  <!-- Left sleeve line -->
+  <path d="
+    M 100 130
+    L 100 180
+  " />
+
+  <!-- Right sleeve line -->
+  <path d="
+    M 300 130
+    L 300 180
+  " />
+
+  <!-- Bottom hem detail -->
+  <path d="
+    M 100 420
+    L 300 420
+  " />
+</svg>
