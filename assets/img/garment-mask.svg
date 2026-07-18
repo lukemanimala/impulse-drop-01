@@ -1,46 +1,60 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" fill="none" stroke="#fff" stroke-width="1">
-  <!-- T-shirt silhouette -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 450" fill="none" stroke="#fff" stroke-width="1.5">
+  <!-- Sleeveless vest silhouette matching product images -->
   <path d="
-    M 120 80
-    L 80 100
-    L 40 140
-    L 60 160
-    L 100 130
-    L 100 420
-    L 300 420
-    L 300 130
-    L 340 160
-    L 360 140
-    L 320 100
-    L 280 80
-    L 260 80
-    Q 240 120 200 120
-    Q 160 120 140 80
+    M 95 60
+    Q 95 45 110 40
+    L 140 35
+    Q 165 30 200 30
+    Q 235 30 260 35
+    L 290 40
+    Q 305 45 305 60
+    L 305 85
+    Q 340 100 355 140
+    Q 360 160 350 175
+    L 320 165
+    Q 310 140 305 120
+    L 305 380
+    Q 305 395 290 400
+    Q 250 410 200 412
+    Q 150 410 110 400
+    Q 95 395 95 380
+    L 95 120
+    Q 90 140 80 165
+    L 50 175
+    Q 40 160 45 140
+    Q 60 100 95 85
     Z
   " />
 
-  <!-- Collar detail -->
+  <!-- Neckline ribbing detail -->
   <path d="
-    M 160 82
-    Q 180 100 200 100
-    Q 220 100 240 82
+    M 130 42
+    Q 165 35 200 35
+    Q 235 35 270 42
   " />
 
-  <!-- Left sleeve line -->
+  <!-- Left armhole curve -->
   <path d="
-    M 100 130
-    L 100 180
-  " />
+    M 95 85
+    Q 70 110 55 150
+  " stroke-dasharray="4 4" />
 
-  <!-- Right sleeve line -->
+  <!-- Right armhole curve -->
   <path d="
-    M 300 130
-    L 300 180
-  " />
+    M 305 85
+    Q 330 110 345 150
+  " stroke-dasharray="4 4" />
 
   <!-- Bottom hem detail -->
   <path d="
-    M 100 420
-    L 300 420
+    M 100 395
+    Q 150 405 200 407
+    Q 250 405 300 395
   " />
+
+  <!-- Center seam hint -->
+  <path d="
+    M 200 50
+    L 200 400
+  " stroke-dasharray="8 12" stroke-width="0.5" opacity="0.3" />
 </svg>

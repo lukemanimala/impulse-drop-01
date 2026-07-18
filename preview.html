@@ -24,6 +24,96 @@
             white-space: nowrap !important;
             border: 0 !important;
         }
+
+        /* Three.js canvas container */
+        .tid-field-container {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+        }
+
+        /* Product reveal layer */
+        .tid-product-reveal {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+
+        .tid-drop[data-state="reveal"] .tid-product-reveal,
+        .tid-drop[data-state="detail"] .tid-product-reveal,
+        .tid-drop[data-state="purchase"] .tid-product-reveal {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .tid-product-image {
+            position: relative;
+            max-width: 65%;
+            max-height: 70vh;
+        }
+
+        .tid-product-image img {
+            display: block;
+            max-width: 100%;
+            max-height: 70vh;
+            object-fit: contain;
+        }
+
+        /* Video container */
+        .tid-product-video {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.6s ease;
+        }
+
+        .tid-product-video.active {
+            opacity: 1;
+        }
+
+        .tid-product-video video {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        /* View toggle */
+        .tid-view-toggle {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 5;
+        }
+
+        .tid-view-toggle button {
+            padding: 8px 16px;
+            background: rgba(0,0,0,0.6);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: #fff;
+            font-size: 10px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tid-view-toggle button:hover,
+        .tid-view-toggle button.active {
+            background: rgba(255,255,255,0.9);
+            color: #000;
+        }
     </style>
 </head>
 <body>
@@ -42,27 +132,46 @@
         </div>
     </div>
 
-    <!-- Visual Field Canvas (S1) -->
-    <div class="tid-field-container">
-        <canvas
-            id="tid-canvas"
-            class="tid-canvas"
-            aria-label="Interactive visual field - tap or drag to create ripples"
-            role="img"
-            tabindex="0"
-        ></canvas>
-
-        <!-- Hidden description for screen readers -->
-        <div id="tid-canvas-desc" class="screen-reader-text">
-            An abstract monochrome geometry field that responds to touch with ripple effects. Tap the Materialize button to reveal the garment.
-        </div>
+    <!-- Three.js Canvas Container (S1) -->
+    <div id="tid-field-container" class="tid-field-container" tabindex="0" aria-label="Interactive procedural surface - tap or drag to create waves">
     </div>
 
     <!-- Product Reveal Layer (S3) -->
     <div class="tid-product-reveal" aria-hidden="true">
-        <div class="tid-product-image tid-product-image--front">
-            <div class="tid-product-image__placeholder">
-                <span>Product Image</span>
+        <div class="tid-product-image tid-product-image--front" id="tid-product-container">
+            <!-- Front view - placeholder, replace with your image path -->
+            <img
+                id="tid-product-front"
+                src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 450'%3E%3Crect fill='%231a1a1a' width='400' height='450'/%3E%3Ctext x='200' y='225' text-anchor='middle' fill='%23666' font-family='system-ui' font-size='14'%3EProduct Front%3C/text%3E%3C/svg%3E"
+                alt="True Impulse Drop 01 - Front view"
+                data-view="front"
+            />
+            <!-- Back view -->
+            <img
+                id="tid-product-back"
+                src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 450'%3E%3Crect fill='%231a1a1a' width='400' height='450'/%3E%3Ctext x='200' y='225' text-anchor='middle' fill='%23666' font-family='system-ui' font-size='14'%3EProduct Back%3C/text%3E%3C/svg%3E"
+                alt="True Impulse Drop 01 - Back view"
+                data-view="back"
+                style="display: none;"
+            />
+
+            <!-- Product rotation video -->
+            <div class="tid-product-video" id="tid-product-video">
+                <video
+                    id="tid-rotation-video"
+                    src="assets/video/product-rotation.mp4"
+                    muted
+                    loop
+                    playsinline
+                    preload="metadata"
+                ></video>
+            </div>
+
+            <!-- View toggle buttons -->
+            <div class="tid-view-toggle" id="tid-view-toggle" style="display: none;">
+                <button data-view="front" class="active">Front</button>
+                <button data-view="back">Back</button>
+                <button data-view="video">360</button>
             </div>
         </div>
     </div>
@@ -78,48 +187,8 @@
         <span class="tid-materialize-btn__icon" aria-hidden="true"></span>
     </button>
     <span id="tid-materialize-desc" class="screen-reader-text">
-        Activate to transform the abstract field into the product
+        Activate to reveal the garment from procedural geometry
     </span>
-
-    <!-- Media Drawer (S4) -->
-    <div id="tid-media-drawer" class="tid-media-drawer" aria-hidden="true">
-        <button type="button" class="tid-media-drawer__close" aria-label="Close gallery">
-            <span aria-hidden="true">&times;</span>
-        </button>
-
-        <div class="tid-media-carousel" role="region" aria-label="Product gallery">
-            <div class="tid-media-carousel__track">
-                <!-- Front -->
-                <div class="tid-media-carousel__slide" data-slide="front">
-                    <div class="tid-product-image__placeholder"><span>Front</span></div>
-                </div>
-                <!-- Back -->
-                <div class="tid-media-carousel__slide" data-slide="back">
-                    <div class="tid-product-image__placeholder"><span>Back</span></div>
-                </div>
-                <!-- Detail -->
-                <div class="tid-media-carousel__slide" data-slide="detail">
-                    <div class="tid-product-image__placeholder"><span>Detail</span></div>
-                </div>
-                <!-- Founder Video -->
-                <div class="tid-media-carousel__slide tid-media-carousel__slide--video" data-slide="video">
-                    <div class="tid-product-image__placeholder"><span>Video</span></div>
-                    <button type="button" class="tid-video-control" aria-label="Play/Pause video">
-                        <span class="tid-video-control__play" aria-hidden="true"></span>
-                        <span class="tid-video-control__pause" aria-hidden="true"></span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Carousel Navigation -->
-            <div class="tid-media-carousel__nav" role="tablist">
-                <button type="button" role="tab" aria-selected="true" data-target="front">Front</button>
-                <button type="button" role="tab" aria-selected="false" data-target="back">Back</button>
-                <button type="button" role="tab" aria-selected="false" data-target="detail">Detail</button>
-                <button type="button" role="tab" aria-selected="false" data-target="video">Video</button>
-            </div>
-        </div>
-    </div>
 
     <!-- Purchase Tray (S5) - Always Accessible -->
     <div id="tid-purchase-tray" class="tid-purchase-tray">
@@ -136,46 +205,16 @@
             <fieldset class="tid-size-selector">
                 <legend class="screen-reader-text">Select size</legend>
                 <div class="tid-size-selector__options" role="radiogroup" aria-label="Available sizes">
-                    <button
-                        type="button"
-                        class="tid-size-btn"
-                        data-variation-id="1"
-                        data-size="S"
-                        role="radio"
-                        aria-checked="false"
-                    >
+                    <button type="button" class="tid-size-btn" data-variation-id="1" data-size="S" role="radio" aria-checked="false">
                         <span class="tid-size-btn__label">S</span>
                     </button>
-                    <button
-                        type="button"
-                        class="tid-size-btn"
-                        data-variation-id="2"
-                        data-size="M"
-                        role="radio"
-                        aria-checked="false"
-                    >
+                    <button type="button" class="tid-size-btn" data-variation-id="2" data-size="M" role="radio" aria-checked="false">
                         <span class="tid-size-btn__label">M</span>
                     </button>
-                    <button
-                        type="button"
-                        class="tid-size-btn"
-                        data-variation-id="3"
-                        data-size="L"
-                        role="radio"
-                        aria-checked="false"
-                    >
+                    <button type="button" class="tid-size-btn" data-variation-id="3" data-size="L" role="radio" aria-checked="false">
                         <span class="tid-size-btn__label">L</span>
                     </button>
-                    <button
-                        type="button"
-                        class="tid-size-btn tid-size-btn--sold-out"
-                        data-variation-id="4"
-                        data-size="XL"
-                        disabled
-                        aria-disabled="true"
-                        role="radio"
-                        aria-checked="false"
-                    >
+                    <button type="button" class="tid-size-btn tid-size-btn--sold-out" data-variation-id="4" data-size="XL" disabled aria-disabled="true" role="radio" aria-checked="false">
                         <span class="tid-size-btn__label">XL</span>
                         <span class="tid-size-btn__status">Sold Out</span>
                     </button>
@@ -184,27 +223,14 @@
 
             <!-- Add to Cart / Checkout -->
             <div class="tid-purchase-actions">
-                <button
-                    type="button"
-                    id="tid-add-to-cart"
-                    class="tid-btn tid-btn--primary tid-add-to-cart"
-                    disabled
-                    data-product-id="0"
-                >
+                <button type="button" id="tid-add-to-cart" class="tid-btn tid-btn--primary tid-add-to-cart" disabled data-product-id="0">
                     <span class="tid-btn__text">Select Size</span>
                     <span class="tid-btn__loading" aria-hidden="true"></span>
                 </button>
-
-                <!-- Error message area -->
                 <div id="tid-cart-error" class="tid-cart-error" role="alert" aria-live="polite"></div>
             </div>
         </div>
     </div>
-
-    <!-- Hidden data for JavaScript -->
-    <script type="application/json" id="tid-mask-data">
-        {"maskUrl": "assets/img/garment-mask.svg"}
-    </script>
 </div>
 
 <!-- Demo config -->
@@ -228,17 +254,300 @@
     };
 </script>
 
+<!-- Three.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
 <!-- GSAP -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 
-<!-- Visual Field -->
-<script src="assets/js/visual-field.js"></script>
-
-<!-- Image Ripple -->
-<script src="assets/js/image-ripple.js"></script>
+<!-- Procedural Field -->
+<script src="assets/js/procedural-field.js"></script>
 
 <!-- Main Controller -->
-<script src="assets/js/drop-01.js"></script>
+<script>
+(function() {
+    'use strict';
+
+    const STATES = {
+        LOADING: 'loading',
+        FIELD: 'field',
+        FORMATION: 'formation',
+        REVEAL: 'reveal',
+        DETAIL: 'detail',
+        PURCHASE: 'purchase'
+    };
+
+    class DropController {
+        constructor() {
+            this.state = STATES.LOADING;
+            this.proceduralField = null;
+            this.selectedVariation = null;
+            this.isAddingToCart = false;
+            this.config = window.tidConfig || {};
+
+            this.elements = {};
+            this.init();
+        }
+
+        init() {
+            this.cacheElements();
+            this.bindEvents();
+            this.loadExperience();
+        }
+
+        cacheElements() {
+            this.elements = {
+                drop: document.getElementById('tid-drop'),
+                fieldContainer: document.getElementById('tid-field-container'),
+                materializeBtn: document.getElementById('tid-materialize-btn'),
+                productReveal: document.querySelector('.tid-product-reveal'),
+                productContainer: document.getElementById('tid-product-container'),
+                productFront: document.getElementById('tid-product-front'),
+                productBack: document.getElementById('tid-product-back'),
+                productVideo: document.getElementById('tid-product-video'),
+                rotationVideo: document.getElementById('tid-rotation-video'),
+                viewToggle: document.getElementById('tid-view-toggle'),
+                purchaseTray: document.getElementById('tid-purchase-tray'),
+                trayToggle: document.querySelector('.tid-purchase-tray__toggle'),
+                sizeButtons: document.querySelectorAll('.tid-size-btn'),
+                addToCartBtn: document.getElementById('tid-add-to-cart'),
+                cartError: document.getElementById('tid-cart-error')
+            };
+        }
+
+        bindEvents() {
+            // Materialize button
+            if (this.elements.materializeBtn) {
+                this.elements.materializeBtn.addEventListener('click', () => this.materialize());
+            }
+
+            // Purchase tray toggle
+            if (this.elements.trayToggle) {
+                this.elements.trayToggle.addEventListener('click', () => this.togglePurchaseTray());
+            }
+
+            // Size selection
+            this.elements.sizeButtons.forEach(btn => {
+                btn.addEventListener('click', () => this.selectSize(btn));
+            });
+
+            // Add to cart
+            if (this.elements.addToCartBtn) {
+                this.elements.addToCartBtn.addEventListener('click', () => this.addToCart());
+            }
+
+            // View toggle buttons
+            if (this.elements.viewToggle) {
+                this.elements.viewToggle.querySelectorAll('button').forEach(btn => {
+                    btn.addEventListener('click', () => this.switchView(btn.dataset.view));
+                });
+            }
+
+            // Product image interaction
+            if (this.elements.productContainer) {
+                this.elements.productContainer.addEventListener('click', (e) => {
+                    if (e.target.tagName === 'IMG') {
+                        this.createImageRipple(e);
+                    }
+                });
+            }
+        }
+
+        async loadExperience() {
+            try {
+                // Initialize procedural field
+                if (this.elements.fieldContainer && window.ProceduralField) {
+                    this.proceduralField = new window.ProceduralField(this.elements.fieldContainer);
+                    this.proceduralField.start();
+                }
+
+                // Brief loading delay
+                await this.delay(800);
+
+                this.setState(STATES.FIELD);
+
+            } catch (error) {
+                console.error('Failed to initialize:', error);
+                this.setState(STATES.REVEAL); // Fallback to product view
+            }
+        }
+
+        setState(newState) {
+            this.state = newState;
+            if (this.elements.drop) {
+                this.elements.drop.dataset.state = newState;
+            }
+        }
+
+        materialize() {
+            if (this.state !== STATES.FIELD) return;
+
+            this.setState(STATES.FORMATION);
+
+            if (this.proceduralField) {
+                this.proceduralField.startReveal(() => {
+                    this.onRevealComplete();
+                });
+            } else {
+                setTimeout(() => this.onRevealComplete(), 300);
+            }
+        }
+
+        onRevealComplete() {
+            this.setState(STATES.REVEAL);
+
+            // Show view toggle
+            if (this.elements.viewToggle) {
+                this.elements.viewToggle.style.display = 'flex';
+            }
+
+            // Expand purchase tray
+            if (this.elements.trayToggle) {
+                this.elements.trayToggle.setAttribute('aria-expanded', 'true');
+            }
+
+            // Animate product in with GSAP
+            if (window.gsap && this.elements.productReveal) {
+                gsap.fromTo(this.elements.productReveal,
+                    { opacity: 0 },
+                    { opacity: 1, duration: 1.2, ease: 'power2.out' }
+                );
+            }
+        }
+
+        switchView(view) {
+            // Update toggle buttons
+            this.elements.viewToggle.querySelectorAll('button').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.view === view);
+            });
+
+            // Hide all views
+            this.elements.productFront.style.display = 'none';
+            this.elements.productBack.style.display = 'none';
+            this.elements.productVideo.classList.remove('active');
+
+            // Pause video
+            if (this.elements.rotationVideo) {
+                this.elements.rotationVideo.pause();
+            }
+
+            // Show selected view
+            switch (view) {
+                case 'front':
+                    this.elements.productFront.style.display = 'block';
+                    break;
+                case 'back':
+                    this.elements.productBack.style.display = 'block';
+                    break;
+                case 'video':
+                    this.elements.productVideo.classList.add('active');
+                    if (this.elements.rotationVideo) {
+                        this.elements.rotationVideo.play().catch(() => {});
+                    }
+                    break;
+            }
+        }
+
+        createImageRipple(e) {
+            // Create a ripple effect on the product image
+            const rect = e.target.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            const ripple = document.createElement('div');
+            ripple.style.cssText = `
+                position: absolute;
+                left: ${x}px;
+                top: ${y}px;
+                width: 0;
+                height: 0;
+                border-radius: 50%;
+                background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+                transform: translate(-50%, -50%);
+                pointer-events: none;
+            `;
+
+            this.elements.productContainer.style.position = 'relative';
+            this.elements.productContainer.appendChild(ripple);
+
+            if (window.gsap) {
+                gsap.to(ripple, {
+                    width: 300,
+                    height: 300,
+                    opacity: 0,
+                    duration: 0.8,
+                    ease: 'power2.out',
+                    onComplete: () => ripple.remove()
+                });
+            } else {
+                setTimeout(() => ripple.remove(), 800);
+            }
+        }
+
+        togglePurchaseTray() {
+            const toggle = this.elements.trayToggle;
+            if (!toggle) return;
+
+            const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+            toggle.setAttribute('aria-expanded', !isExpanded);
+        }
+
+        selectSize(button) {
+            if (button.disabled) return;
+
+            this.elements.sizeButtons.forEach(btn => {
+                btn.setAttribute('aria-checked', 'false');
+            });
+            button.setAttribute('aria-checked', 'true');
+
+            this.selectedVariation = {
+                id: parseInt(button.dataset.variationId, 10),
+                size: button.dataset.size
+            };
+
+            const addBtn = this.elements.addToCartBtn;
+            if (addBtn) {
+                addBtn.disabled = false;
+                addBtn.querySelector('.tid-btn__text').textContent = this.config.i18n?.add_to_cart || 'Add to Cart';
+            }
+        }
+
+        async addToCart() {
+            if (!this.selectedVariation || this.isAddingToCart) return;
+
+            const addBtn = this.elements.addToCartBtn;
+            if (!addBtn) return;
+
+            this.isAddingToCart = true;
+            addBtn.classList.add('loading');
+
+            // Simulate cart add
+            await this.delay(800);
+
+            addBtn.querySelector('.tid-btn__text').textContent = this.config.i18n?.added || 'Added!';
+            addBtn.classList.remove('loading');
+
+            // Redirect after brief confirmation
+            setTimeout(() => {
+                alert('Demo mode: Would redirect to checkout');
+            }, 600);
+
+            this.isAddingToCart = false;
+        }
+
+        delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+    }
+
+    // Initialize
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => new DropController());
+    } else {
+        new DropController();
+    }
+})();
+</script>
 
 </body>
 </html>

@@ -2,6 +2,7 @@
  * True Impulse Drop 01 - Main Controller
  *
  * State machine, UI interactions, and WooCommerce cart integration
+ * Works with ProceduralField (Three.js) for visual experience
  */
 
 (function() {
@@ -24,7 +25,7 @@
     class DropController {
         constructor() {
             this.state = STATES.LOADING;
-            this.visualField = null;
+            this.proceduralField = null;
             this.selectedVariation = null;
             this.isAddingToCart = false;
             this.config = window.tidConfig || {};
@@ -43,9 +44,16 @@
         cacheElements() {
             this.elements = {
                 drop: document.getElementById('tid-drop'),
+                fieldContainer: document.getElementById('tid-field-container'),
                 canvas: document.getElementById('tid-canvas'),
                 materializeBtn: document.getElementById('tid-materialize-btn'),
                 productReveal: document.querySelector('.tid-product-reveal'),
+                productContainer: document.getElementById('tid-product-container'),
+                productFront: document.getElementById('tid-product-front'),
+                productBack: document.getElementById('tid-product-back'),
+                productVideo: document.getElementById('tid-product-video'),
+                rotationVideo: document.getElementById('tid-rotation-video'),
+                viewToggle: document.getElementById('tid-view-toggle'),
                 mediaDrawer: document.getElementById('tid-media-drawer'),
                 purchaseTray: document.getElementById('tid-purchase-tray'),
                 trayToggle: document.querySelector('.tid-purchase-tray__toggle'),
@@ -82,9 +90,20 @@
                 this.elements.addToCartBtn.addEventListener('click', () => this.addToCart());
             }
 
-            // Product image click - open drawer
-            if (this.elements.productReveal) {
-                this.elements.productReveal.addEventListener('click', () => this.openMediaDrawer());
+            // View toggle buttons
+            if (this.elements.viewToggle) {
+                this.elements.viewToggle.querySelectorAll('button').forEach(btn => {
+                    btn.addEventListener('click', () => this.switchView(btn.dataset.view));
+                });
+            }
+
+            // Product image click - create ripple or open drawer
+            if (this.elements.productContainer) {
+                this.elements.productContainer.addEventListener('click', (e) => {
+                    if (e.target.tagName === 'IMG') {
+                        this.createImageRipple(e);
+                    }
+                });
             }
 
             // Media drawer close
@@ -109,37 +128,31 @@
                 }
             });
 
-            // Canvas ripple event
-            if (this.elements.canvas) {
-                this.elements.canvas.addEventListener('tid:ripple', () => {
+            // Field container ripple event
+            if (this.elements.fieldContainer) {
+                this.elements.fieldContainer.addEventListener('tid:ripple', () => {
                     this.trackEvent('first_ripple');
                 });
             }
         }
 
         async loadAssets() {
-            const timeout = 1500;
+            const timeout = 2000;
             const startTime = Date.now();
 
             try {
-                // Initialize visual field
-                if (this.elements.canvas && window.VisualField) {
-                    this.visualField = new window.VisualField(this.elements.canvas);
+                // Initialize procedural field (Three.js)
+                const container = this.elements.fieldContainer || this.elements.canvas?.parentElement;
 
-                    // Load mask
-                    const maskData = document.getElementById('tid-mask-data');
-                    if (maskData) {
-                        const data = JSON.parse(maskData.textContent);
-                        await this.visualField.loadMask(data.maskUrl);
-                    }
-
-                    this.visualField.start();
+                if (container && window.ProceduralField) {
+                    this.proceduralField = new window.ProceduralField(container);
+                    this.proceduralField.start();
                 }
 
                 // Ensure minimum loading time for smooth transition
                 const elapsed = Date.now() - startTime;
-                if (elapsed < 500) {
-                    await this.delay(500 - elapsed);
+                if (elapsed < 600) {
+                    await this.delay(600 - elapsed);
                 }
 
                 this.setState(STATES.FIELD);
@@ -164,8 +177,8 @@
             this.setState(STATES.FORMATION);
             this.trackEvent('materialize_click');
 
-            if (this.visualField) {
-                this.visualField.startMorph(() => {
+            if (this.proceduralField) {
+                this.proceduralField.startReveal(() => {
                     this.onMorphComplete();
                 });
             } else {
@@ -178,6 +191,11 @@
             this.setState(STATES.REVEAL);
             this.trackEvent('reveal_complete');
 
+            // Show view toggle if available
+            if (this.elements.viewToggle) {
+                this.elements.viewToggle.style.display = 'flex';
+            }
+
             // Expand purchase tray
             if (this.elements.trayToggle) {
                 this.elements.trayToggle.setAttribute('aria-expanded', 'true');
@@ -186,9 +204,81 @@
             // Use GSAP for smooth product reveal if available
             if (window.gsap && this.elements.productReveal) {
                 gsap.fromTo(this.elements.productReveal,
-                    { opacity: 0, scale: 0.95 },
-                    { opacity: 1, scale: 1, duration: 0.6, ease: 'power2.out' }
+                    { opacity: 0 },
+                    { opacity: 1, duration: 1.0, ease: 'power2.out' }
                 );
+            }
+        }
+
+        switchView(view) {
+            if (!this.elements.viewToggle) return;
+
+            // Update toggle buttons
+            this.elements.viewToggle.querySelectorAll('button').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.view === view);
+            });
+
+            // Hide all views
+            if (this.elements.productFront) this.elements.productFront.style.display = 'none';
+            if (this.elements.productBack) this.elements.productBack.style.display = 'none';
+            if (this.elements.productVideo) this.elements.productVideo.classList.remove('active');
+
+            // Pause video
+            if (this.elements.rotationVideo) {
+                this.elements.rotationVideo.pause();
+            }
+
+            // Show selected view
+            switch (view) {
+                case 'front':
+                    if (this.elements.productFront) this.elements.productFront.style.display = 'block';
+                    break;
+                case 'back':
+                    if (this.elements.productBack) this.elements.productBack.style.display = 'block';
+                    break;
+                case 'video':
+                    if (this.elements.productVideo) this.elements.productVideo.classList.add('active');
+                    if (this.elements.rotationVideo) {
+                        this.elements.rotationVideo.play().catch(() => {});
+                    }
+                    break;
+            }
+        }
+
+        createImageRipple(e) {
+            if (!this.elements.productContainer) return;
+
+            const rect = e.target.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            const ripple = document.createElement('div');
+            ripple.style.cssText = `
+                position: absolute;
+                left: ${x}px;
+                top: ${y}px;
+                width: 0;
+                height: 0;
+                border-radius: 50%;
+                background: radial-gradient(circle, rgba(255,255,255,0.25) 0%, transparent 70%);
+                transform: translate(-50%, -50%);
+                pointer-events: none;
+            `;
+
+            this.elements.productContainer.style.position = 'relative';
+            this.elements.productContainer.appendChild(ripple);
+
+            if (window.gsap) {
+                gsap.to(ripple, {
+                    width: 350,
+                    height: 350,
+                    opacity: 0,
+                    duration: 1.0,
+                    ease: 'power2.out',
+                    onComplete: () => ripple.remove()
+                });
+            } else {
+                setTimeout(() => ripple.remove(), 1000);
             }
         }
 

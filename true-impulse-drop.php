@@ -45,6 +45,15 @@ class True_Impulse_Drop {
      * Register and enqueue assets
      */
     public function register_assets() {
+        // Register Three.js from CDN
+        wp_register_script(
+            'three',
+            'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js',
+            [],
+            'r128',
+            true
+        );
+
         // Register GSAP from CDN
         wp_register_script(
             'gsap',
@@ -54,20 +63,11 @@ class True_Impulse_Drop {
             true
         );
 
-        // Visual field canvas renderer
+        // Procedural field - Three.js displaced geometry system
         wp_register_script(
-            'tid-visual-field',
-            TID_PLUGIN_URL . 'assets/js/visual-field.js',
-            [],
-            TID_VERSION,
-            true
-        );
-
-        // Image ripple effect
-        wp_register_script(
-            'tid-image-ripple',
-            TID_PLUGIN_URL . 'assets/js/image-ripple.js',
-            [],
+            'tid-procedural-field',
+            TID_PLUGIN_URL . 'assets/js/procedural-field.js',
+            ['three'],
             TID_VERSION,
             true
         );
@@ -76,7 +76,7 @@ class True_Impulse_Drop {
         wp_register_script(
             'tid-drop',
             TID_PLUGIN_URL . 'assets/js/drop-01.js',
-            ['gsap', 'tid-visual-field', 'tid-image-ripple'],
+            ['gsap', 'tid-procedural-field'],
             TID_VERSION,
             true
         );
