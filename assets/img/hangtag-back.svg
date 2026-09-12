@@ -1,0 +1,50 @@
+<svg viewBox="0 0 50 130" xmlns="http://www.w3.org/2000/svg">
+  <!-- Hangtag Back - 5cm x 13cm -->
+
+  <!-- Background -->
+  <rect width="50" height="130" fill="#fafafa"/>
+
+  <!-- Hang hole -->
+  <circle cx="25" cy="8" r="2.5" fill="none" stroke="#d0d0d0" stroke-width="0.5"/>
+
+  <!-- Twisted pyramid geometry (centered) -->
+  <g transform="translate(25, 52) scale(0.32)" fill="none">
+    <path d="M 0,-36 Q 2.5,-35 3.1,-34.2 L 29.5,15.5 Q 30.5,17 30,18 L -30,18 Q -30.5,17 -29.5,15.5 L -3.1,-34.2 Q -2.5,-35 0,-36 Z"
+          stroke="#1a1a1a" stroke-width="1.4" transform="rotate(0)"/>
+    <path d="M 0,-29 Q 2,-28 2.4,-27.2 L 23.5,12 Q 24.5,13.5 24,14.5 L -24,14.5 Q -24.5,13.5 -23.5,12 L -2.4,-27.2 Q -2,-28 0,-29 Z"
+          stroke="#333333" stroke-width="1.2" transform="rotate(-12)"/>
+    <path d="M 0,-22 Q 1.5,-21 1.8,-20.2 L 17.5,8.5 Q 18.5,10 18,11 L -18,11 Q -18.5,10 -17.5,8.5 L -1.8,-20.2 Q -1.5,-21 0,-22 Z"
+          stroke="#4a4a4a" stroke-width="1.0" transform="rotate(-24)"/>
+    <path d="M 0,-15 Q 1,-14 1.2,-13.2 L 12,5 Q 13,6.5 12.5,7.5 L -12.5,7.5 Q -13,6.5 -12,5 L -1.2,-13.2 Q -1,-14 0,-15 Z"
+          stroke="#5a5a5a" stroke-width="0.85" transform="rotate(-36)"/>
+    <path d="M 0,-9 Q 0.6,-8 0.8,-7.2 L 7,2 Q 8,3.5 7.5,4.5 L -7.5,4.5 Q -8,3.5 -7,2 L -0.8,-7.2 Q -0.6,-8 0,-9 Z"
+          stroke="#6a6a6a" stroke-width="0.7" transform="rotate(-48)"/>
+    <path d="M 0,-4 Q 0.3,-3 0.4,-2.2 L 3,0 Q 4,1.5 3.5,2.5 L -3.5,2.5 Q -4,1.5 -3,0 L -0.4,-2.2 Q -0.3,-3 0,-4 Z"
+          stroke="#7a7a7a" stroke-width="0.55" transform="rotate(-60)"/>
+  </g>
+
+  <!-- IMPULSE text -->
+  <text
+    x="25"
+    y="82"
+    text-anchor="middle"
+    font-family="system-ui, -apple-system, sans-serif"
+    font-size="4.5"
+    font-weight="300"
+    letter-spacing="0.35em"
+    fill="#1a1a1a"
+  >IMPULSE</text>
+
+  <!-- Website/URL -->
+  <text
+    x="25"
+    y="120"
+    text-anchor="middle"
+    font-family="system-ui, -apple-system, sans-serif"
+    font-size="2.5"
+    font-weight="400"
+    letter-spacing="0.1em"
+    fill="#888888"
+  >IMPULSE.CLOTHING</text>
+
+</svg>

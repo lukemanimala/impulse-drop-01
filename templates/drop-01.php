@@ -9,6 +9,9 @@ defined('ABSPATH') || exit;
 
 $product_config = true_impulse_drop()->get_product_config();
 $product_data = $product_config->get_product_data();
+$all_products = $product_config->get_all_products_data();
+$tab_labels = $product_config->get_tab_labels();
+$has_multiple = $product_config->has_multiple_products();
 $mask_url = $product_config->get_mask_url();
 ?>
 
@@ -20,121 +23,144 @@ $mask_url = $product_config->get_mask_url();
 
     <!-- Loading State (S0) -->
     <div class="tid-loading" aria-live="polite">
-        <div class="tid-loading__wordmark">TRUE IMPULSE</div>
-        <div class="tid-loading__indicator" role="status">
-            <span class="screen-reader-text"><?php esc_html_e('Loading experience...', 'true-impulse-drop'); ?></span>
+        <div class="tid-loading__wordmark">IMPULSE CLOTHING</div>
+        <div class="tid-loading__logo" role="status" aria-label="<?php esc_attr_e('Loading animation', 'true-impulse-drop'); ?>">
+            <svg width="120" height="125" viewBox="0 0 435 453" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path opacity="0.1" d="M322.21 301.407C333.659 301.404 340.814 289.011 335.093 279.094L186.96 22.33C181.235 12.4074 166.915 12.4051 161.187 22.3259L12.8898 279.185C7.16206 289.106 14.3241 301.506 25.7797 301.502L322.21 301.407Z" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="3.47626" stroke-linecap="round" stroke-linejoin="round"/>
+                <path opacity="0.25" d="M260.773 296.424C271.973 298.801 281.548 288.167 278.013 277.277L213.357 78.0664C209.82 67.1704 195.813 64.1908 188.148 72.7039L47.9275 228.435C40.2623 236.948 44.6896 250.567 55.8956 252.945L260.773 296.424Z" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="3.47626" stroke-linecap="round" stroke-linejoin="round"/>
+                <path opacity="0.4" d="M225.237 282.031C235.977 285.907 246.9 276.742 244.947 265.492L218.992 115.931C217.03 104.629 203.556 99.7043 194.769 107.078L77.9431 205.106C69.1556 212.48 71.6658 226.604 82.4558 230.498L225.237 282.031Z" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="3.47626" stroke-linecap="round" stroke-linejoin="round"/>
+                <path opacity="0.6" d="M199.489 261.836C207.848 266.313 217.91 260.025 217.55 250.55L213.679 148.514C213.321 139.088 202.907 133.571 194.908 138.569L108.767 192.396C100.768 197.395 101.161 209.173 109.476 213.626L199.489 261.836Z" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="3.47626" stroke-linecap="round" stroke-linejoin="round"/>
+                <path opacity="0.8" d="M178.808 235.496C185.757 240.541 195.561 236.176 196.462 227.636L201.53 179.56C202.431 171.016 193.743 164.702 185.894 168.196L141.707 187.87C133.858 191.364 132.737 202.046 139.689 207.094L178.808 235.496Z" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="3.47626" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M173.642 212.406C175.9 214.514 179.59 213.455 180.387 210.471L184.321 195.754C185.142 192.681 182.297 189.888 179.24 190.764L164.172 195.085C161.115 195.962 160.183 199.838 162.507 202.009L173.642 212.406Z" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="3.47626" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
         </div>
+        <span class="screen-reader-text"><?php esc_html_e('Loading experience...', 'true-impulse-drop'); ?></span>
     </div>
 
-    <!-- Visual Field Canvas (S1) -->
-    <div class="tid-field-container">
-        <canvas
-            id="tid-canvas"
-            class="tid-canvas"
-            aria-label="<?php esc_attr_e('Interactive visual field - tap or drag to create ripples', 'true-impulse-drop'); ?>"
-            role="img"
-            tabindex="0"
-        ></canvas>
+    <!-- Custom Cursor -->
+    <!-- Brand mark - shows on all states -->
+    <div class="tid-brand-mark tid-brand-mark--global">IMPULSE CLOTHING</div>
 
-        <!-- Hidden description for screen readers -->
-        <div id="tid-canvas-desc" class="screen-reader-text">
-            <?php esc_html_e('An abstract monochrome geometry field that responds to touch with ripple effects. Tap the Materialize button to reveal the garment.', 'true-impulse-drop'); ?>
+    <!-- Cart button - top right -->
+    <button type="button" id="tid-cart-btn" class="tid-cart-btn" aria-label="<?php esc_attr_e('View cart', 'true-impulse-drop'); ?>">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M6 6h15l-1.5 9h-12z"/>
+            <circle cx="9" cy="20" r="1"/>
+            <circle cx="18" cy="20" r="1"/>
+            <path d="M6 6L5 3H2"/>
+        </svg>
+        <span class="tid-cart-btn__count" id="tid-cart-count" style="display: none;">0</span>
+    </button>
+
+    <?php if ($has_multiple && !empty($tab_labels)): ?>
+    <!-- Product Tabs -->
+    <div class="tid-product-tabs" id="tid-product-tabs" role="tablist" aria-label="<?php esc_attr_e('Product selection', 'true-impulse-drop'); ?>">
+        <?php foreach ($tab_labels as $index => $label): ?>
+            <button
+                type="button"
+                role="tab"
+                data-product-index="<?php echo esc_attr($index); ?>"
+                aria-selected="<?php echo $index === 0 ? 'true' : 'false'; ?>"
+                <?php echo $index === 0 ? 'class="active"' : ''; ?>
+            >
+                <?php echo esc_html($label); ?>
+            </button>
+        <?php endforeach; ?>
+    </div>
+    <?php endif; ?>
+
+    <!-- Custom cursor / tap prompt -->
+    <div id="tid-cursor" class="tid-cursor">TAP TO MATERIALIZE</div>
+
+    <!-- Visual Field Canvas Container (S1) -->
+    <div id="tid-field-container" class="tid-field-container" tabindex="0" aria-label="<?php esc_attr_e('Interactive procedural surface - tap or drag to create waves', 'true-impulse-drop'); ?>">
+        <!-- Drop number overlay -->
+        <div class="tid-drop-number" aria-hidden="true">
+            <span class="tid-drop-number__label">DROP</span>
+            <span class="tid-drop-number__value">001</span>
         </div>
     </div>
 
     <!-- Product Reveal Layer (S3) -->
     <div class="tid-product-reveal" aria-hidden="true">
-        <div class="tid-product-image tid-product-image--front">
+        <div class="tid-product-image" id="tid-product-container">
+            <!-- Front view -->
             <?php if (!empty($product_data['images']['front'])): ?>
                 <img
+                    id="tid-product-front"
                     src="<?php echo esc_url($product_data['images']['front']); ?>"
                     alt="<?php echo esc_attr($product_data['name']); ?> - Front view"
-                    loading="lazy"
+                    data-view="front"
                 />
             <?php else: ?>
-                <div class="tid-product-image__placeholder">
-                    <span>Product Image</span>
-                </div>
+                <img
+                    id="tid-product-front"
+                    src="<?php echo esc_url(TID_PLUGIN_URL . 'assets/img/product-front.png'); ?>"
+                    alt="<?php echo esc_attr($product_data['name']); ?> - Front view"
+                    data-view="front"
+                />
             <?php endif; ?>
+
+            <!-- Back view (for products with color variants) -->
+            <img
+                id="tid-product-back"
+                class="tid-product-back"
+                src=""
+                alt=""
+                data-view="back"
+                style="display: none;"
+            />
+
+            <!-- Worn view -->
+            <div id="tid-product-worn" class="tid-product-worn" data-view="worn" style="display: none;">
+                <?php if (!empty($product_data['images']['back'])): ?>
+                    <img
+                        src="<?php echo esc_url($product_data['images']['back']); ?>"
+                        alt="<?php echo esc_attr($product_data['name']); ?> - Worn"
+                    />
+                <?php else: ?>
+                    <img
+                        src="<?php echo esc_url(TID_PLUGIN_URL . 'assets/img/product-worn.png'); ?>"
+                        alt="<?php echo esc_attr($product_data['name']); ?> - Worn"
+                    />
+                <?php endif; ?>
+            </div>
+
+            <!-- Product rotation video -->
+            <div class="tid-product-video" id="tid-product-video">
+                <video
+                    id="tid-rotation-video"
+                    src="<?php echo esc_url(TID_PLUGIN_URL . 'assets/video/product-rotation.mp4'); ?>"
+                    muted
+                    loop
+                    playsinline
+                    autoplay
+                    preload="auto"
+                ></video>
+            </div>
+
+            <!-- View toggle buttons (JS configures which buttons show) -->
+            <div class="tid-view-toggle" id="tid-view-toggle" style="display: none;">
+                <button type="button" data-view="front" class="active"><?php esc_html_e('Front', 'true-impulse-drop'); ?></button>
+                <button type="button" data-view="video"><?php esc_html_e('360', 'true-impulse-drop'); ?></button>
+                <button type="button" data-view="back"><?php esc_html_e('Back', 'true-impulse-drop'); ?></button>
+                <button type="button" data-view="worn"><?php esc_html_e('Worn', 'true-impulse-drop'); ?></button>
+            </div>
         </div>
     </div>
 
-    <!-- Materialize CTA -->
+    <!-- Materialize CTA (hidden, for accessibility fallback) -->
     <button
         type="button"
         id="tid-materialize-btn"
-        class="tid-materialize-btn"
+        class="tid-materialize-btn screen-reader-text"
         aria-describedby="tid-materialize-desc"
     >
         <span class="tid-materialize-btn__text">MATERIALIZE</span>
-        <span class="tid-materialize-btn__icon" aria-hidden="true"></span>
     </button>
     <span id="tid-materialize-desc" class="screen-reader-text">
         <?php esc_html_e('Activate to transform the abstract field into the product', 'true-impulse-drop'); ?>
     </span>
-
-    <!-- Media Drawer (S4) -->
-    <div id="tid-media-drawer" class="tid-media-drawer" aria-hidden="true">
-        <button type="button" class="tid-media-drawer__close" aria-label="<?php esc_attr_e('Close gallery', 'true-impulse-drop'); ?>">
-            <span aria-hidden="true">&times;</span>
-        </button>
-
-        <div class="tid-media-carousel" role="region" aria-label="<?php esc_attr_e('Product gallery', 'true-impulse-drop'); ?>">
-            <div class="tid-media-carousel__track">
-                <!-- Front -->
-                <div class="tid-media-carousel__slide" data-slide="front">
-                    <?php if (!empty($product_data['images']['front'])): ?>
-                        <img src="<?php echo esc_url($product_data['images']['front']); ?>" alt="Front view" />
-                    <?php else: ?>
-                        <div class="tid-product-image__placeholder"><span>Front</span></div>
-                    <?php endif; ?>
-                </div>
-                <!-- Back -->
-                <div class="tid-media-carousel__slide" data-slide="back">
-                    <?php if (!empty($product_data['images']['back'])): ?>
-                        <img src="<?php echo esc_url($product_data['images']['back']); ?>" alt="Back view" />
-                    <?php else: ?>
-                        <div class="tid-product-image__placeholder"><span>Back</span></div>
-                    <?php endif; ?>
-                </div>
-                <!-- Detail -->
-                <div class="tid-media-carousel__slide" data-slide="detail">
-                    <?php if (!empty($product_data['images']['detail'])): ?>
-                        <img src="<?php echo esc_url($product_data['images']['detail']); ?>" alt="Detail view" />
-                    <?php else: ?>
-                        <div class="tid-product-image__placeholder"><span>Detail</span></div>
-                    <?php endif; ?>
-                </div>
-                <!-- Founder Video -->
-                <div class="tid-media-carousel__slide tid-media-carousel__slide--video" data-slide="video">
-                    <video
-                        id="tid-founder-video"
-                        class="tid-founder-video"
-                        muted
-                        loop
-                        playsinline
-                        preload="none"
-                        poster=""
-                        aria-label="<?php esc_attr_e('Founder wearing the garment', 'true-impulse-drop'); ?>"
-                    >
-                        <source src="" type="video/mp4" />
-                    </video>
-                    <button type="button" class="tid-video-control" aria-label="<?php esc_attr_e('Play/Pause video', 'true-impulse-drop'); ?>">
-                        <span class="tid-video-control__play" aria-hidden="true"></span>
-                        <span class="tid-video-control__pause" aria-hidden="true"></span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Carousel Navigation -->
-            <div class="tid-media-carousel__nav" role="tablist">
-                <button type="button" role="tab" aria-selected="true" data-target="front">Front</button>
-                <button type="button" role="tab" aria-selected="false" data-target="back">Back</button>
-                <button type="button" role="tab" aria-selected="false" data-target="detail">Detail</button>
-                <button type="button" role="tab" aria-selected="false" data-target="video">Video</button>
-            </div>
-        </div>
-    </div>
 
     <!-- Purchase Tray (S5) - Always Accessible -->
     <div id="tid-purchase-tray" class="tid-purchase-tray">
@@ -147,6 +173,14 @@ $mask_url = $product_config->get_mask_url();
         </div>
 
         <div id="tid-purchase-content" class="tid-purchase-tray__content">
+            <!-- Color Selection (rendered by JavaScript based on product) -->
+            <fieldset class="tid-color-selector" id="tid-color-selector" style="display:none;">
+                <legend class="tid-color-selector__label"><?php esc_html_e('Color', 'true-impulse-drop'); ?></legend>
+                <div class="tid-color-selector__options" role="radiogroup" aria-label="<?php esc_attr_e('Available colors', 'true-impulse-drop'); ?>">
+                    <!-- Color buttons injected by JavaScript -->
+                </div>
+            </fieldset>
+
             <!-- Size Selection -->
             <fieldset class="tid-size-selector">
                 <legend class="screen-reader-text"><?php esc_html_e('Select size', 'true-impulse-drop'); ?></legend>
@@ -185,18 +219,11 @@ $mask_url = $product_config->get_mask_url();
 
                 <!-- Error message area -->
                 <div id="tid-cart-error" class="tid-cart-error" role="alert" aria-live="polite"></div>
-
-                <!-- Fallback link to standard product page -->
-                <?php if ($product_data['id']): ?>
-                    <a href="<?php echo esc_url(get_permalink($product_data['id'])); ?>" class="tid-fallback-link">
-                        <?php esc_html_e('View standard product page', 'true-impulse-drop'); ?>
-                    </a>
-                <?php endif; ?>
             </div>
         </div>
     </div>
 
-    <!-- Fallback Product View (S6) - Shown when JS/Canvas fails -->
+    <!-- Fallback Product View - Shown when JS/Canvas fails -->
     <noscript>
         <div class="tid-fallback">
             <div class="tid-fallback__image">
@@ -218,6 +245,41 @@ $mask_url = $product_config->get_mask_url();
 
     <!-- Hidden data for JavaScript -->
     <script type="application/json" id="tid-mask-data">
-        {"maskUrl": "<?php echo esc_url($mask_url); ?>"}
+        {"maskUrl": "<?php echo esc_url($mask_url); ?>", "outlineUrl": "<?php echo esc_url(TID_PLUGIN_URL . 'assets/img/garment-outline.svg'); ?>"}
+    </script>
+
+    <!-- Product configuration for JavaScript -->
+    <script>
+        var tidConfig = <?php echo wp_json_encode([
+            'product' => $product_data,
+            'products' => $all_products,
+            'tabs' => $tab_labels,
+            'hasMultipleProducts' => $has_multiple,
+            'colorMap' => [
+                'black' => '#1a1a1a',
+                'green' => '#2d4a3e',
+                'white' => '#ffffff',
+                'grey' => '#6b6b6b',
+                'gray' => '#6b6b6b',
+                'navy' => '#1a2744',
+                'brown' => '#4a3728',
+                'cream' => '#f5f5dc',
+            ],
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'checkout_url' => function_exists('wc_get_checkout_url') ? wc_get_checkout_url() : '/checkout/',
+            'cart_url' => function_exists('wc_get_cart_url') ? wc_get_cart_url() : '/cart/',
+            'nonce' => wp_create_nonce('wc_store_api'),
+            'add_to_cart_nonce' => wp_create_nonce('add-to-cart'),
+            'assets_url' => TID_PLUGIN_URL . 'assets/',
+            'i18n' => [
+                'add_to_cart' => __('Add to Cart', 'true-impulse-drop'),
+                'added' => __('Added', 'true-impulse-drop'),
+                'checkout' => __('Checkout', 'true-impulse-drop'),
+                'select_size' => __('Select Size', 'true-impulse-drop'),
+                'select_color' => __('Select Color', 'true-impulse-drop'),
+                'sold_out' => __('Sold Out', 'true-impulse-drop'),
+                'error' => __('Error adding to cart', 'true-impulse-drop'),
+            ],
+        ]); ?>;
     </script>
 </div>

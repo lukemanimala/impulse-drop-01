@@ -11,7 +11,7 @@
 
 defined('ABSPATH') || exit;
 
-define('TID_VERSION', '1.0.0');
+define('TID_VERSION', '1.3.1');
 define('TID_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('TID_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -45,15 +45,6 @@ class True_Impulse_Drop {
      * Register and enqueue assets
      */
     public function register_assets() {
-        // Register Three.js from CDN
-        wp_register_script(
-            'three',
-            'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js',
-            [],
-            'r128',
-            true
-        );
-
         // Register GSAP from CDN
         wp_register_script(
             'gsap',
@@ -63,11 +54,11 @@ class True_Impulse_Drop {
             true
         );
 
-        // Procedural field - Three.js displaced geometry system
+        // Procedural field - Canvas 2D animation system
         wp_register_script(
             'tid-procedural-field',
             TID_PLUGIN_URL . 'assets/js/procedural-field.js',
-            ['three'],
+            [],
             TID_VERSION,
             true
         );
@@ -88,6 +79,16 @@ class True_Impulse_Drop {
             [],
             TID_VERSION
         );
+
+        // WooCommerce page cleanup (cart, checkout, order confirmation)
+        if (function_exists('is_cart') && (is_cart() || is_checkout() || is_order_received_page())) {
+            wp_enqueue_style(
+                'tid-woo-cleanup',
+                TID_PLUGIN_URL . 'assets/css/woo-cleanup.css',
+                [],
+                TID_VERSION
+            );
+        }
     }
 
     /**
@@ -97,9 +98,17 @@ class True_Impulse_Drop {
         wp_enqueue_style('tid-drop');
         wp_enqueue_script('tid-drop');
 
+        // Get products data (supports single or multiple)
+        $products = $this->product_config->get_all_products_data();
+        $tabs = $this->product_config->get_tab_labels();
+        $has_multiple = $this->product_config->has_multiple_products();
+
         // Inject product configuration
         wp_localize_script('tid-drop', 'tidConfig', [
-            'product' => $this->product_config->get_product_data(),
+            'product' => $products[0], // First product for backward compatibility
+            'products' => $products,
+            'tabs' => $tabs,
+            'hasMultipleProducts' => $has_multiple,
             'ajax_url' => admin_url('admin-ajax.php'),
             'checkout_url' => wc_get_checkout_url(),
             'cart_url' => wc_get_cart_url(),
@@ -111,6 +120,7 @@ class True_Impulse_Drop {
                 'added' => __('Added', 'true-impulse-drop'),
                 'checkout' => __('Checkout', 'true-impulse-drop'),
                 'select_size' => __('Select Size', 'true-impulse-drop'),
+                'select_color' => __('Select Color', 'true-impulse-drop'),
                 'sold_out' => __('Sold Out', 'true-impulse-drop'),
                 'error' => __('Error adding to cart', 'true-impulse-drop'),
             ],
@@ -123,11 +133,27 @@ class True_Impulse_Drop {
     public function render_shortcode($atts) {
         $atts = shortcode_atts([
             'product_id' => 0,
+            'products' => '',
+            'tabs' => '',
         ], $atts, 'true_impulse_drop');
 
-        // Set product ID if provided
-        if (!empty($atts['product_id'])) {
+        // Multi-product support
+        if (!empty($atts['products'])) {
+            $product_ids = array_map('trim', explode(',', $atts['products']));
+            $tab_labels = !empty($atts['tabs']) ? array_map('trim', explode(',', $atts['tabs'])) : [];
+            $this->product_config->set_products($product_ids, $tab_labels);
+        } elseif (!empty($atts['product_id'])) {
+            // Single product fallback
             $this->product_config->set_product_id(intval($atts['product_id']));
+        }
+
+        // Prevent Varnish/CDN caching - page has dynamic nonces and product data
+        if (!headers_sent()) {
+            header('Cache-Control: no-cache, no-store, must-revalidate, max-age=0');
+            header('Pragma: no-cache');
+            header('Expires: 0');
+            // Cloudways Varnish bypass
+            header('X-Varnish-Bypass: 1');
         }
 
         $this->enqueue_drop_assets();
@@ -179,7 +205,11 @@ add_action('wp_ajax_tid_add_to_cart', 'tid_ajax_add_to_cart');
 add_action('wp_ajax_nopriv_tid_add_to_cart', 'tid_ajax_add_to_cart');
 
 function tid_ajax_add_to_cart() {
-    check_ajax_referer('add-to-cart', 'security');
+    // Verify nonce - return JSON error instead of dying
+    if (!wp_verify_nonce($_POST['security'] ?? '', 'add-to-cart')) {
+        wp_send_json_error(['message' => __('Security check failed. Please refresh the page.', 'true-impulse-drop')]);
+        return;
+    }
 
     $product_id = isset($_POST['product_id']) ? absint($_POST['product_id']) : 0;
     $variation_id = isset($_POST['variation_id']) ? absint($_POST['variation_id']) : 0;
@@ -187,13 +217,24 @@ function tid_ajax_add_to_cart() {
 
     if (!$product_id) {
         wp_send_json_error(['message' => __('Invalid product', 'true-impulse-drop')]);
+        return;
+    }
+
+    // Get variation attributes if this is a variation
+    $variation = [];
+    if ($variation_id) {
+        $variation_obj = wc_get_product($variation_id);
+        if ($variation_obj && $variation_obj->is_type('variation')) {
+            $variation = $variation_obj->get_variation_attributes();
+        }
     }
 
     // Add to cart
     $cart_item_key = WC()->cart->add_to_cart(
         $product_id,
         $quantity,
-        $variation_id
+        $variation_id,
+        $variation
     );
 
     if ($cart_item_key) {
@@ -204,8 +245,13 @@ function tid_ajax_add_to_cart() {
             'checkout_url' => wc_get_checkout_url(),
         ]);
     } else {
+        // Get WooCommerce notices for better error message
+        $notices = wc_get_notices('error');
+        $error_msg = !empty($notices) ? strip_tags($notices[0]['notice']) : __('Could not add to cart', 'true-impulse-drop');
+        wc_clear_notices();
+
         wp_send_json_error([
-            'message' => __('Could not add to cart', 'true-impulse-drop'),
+            'message' => $error_msg,
         ]);
     }
 }

@@ -1,0 +1,31 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Combined: Twisted pyramid + IMPULSE text -->
+
+  <!-- Geometry centered above (scaled down) -->
+  <g transform="translate(50, 38) scale(0.7)" fill="none">
+    <path d="M 0,-36 Q 2.5,-35 3.1,-34.2 L 29.5,15.5 Q 30.5,17 30,18 L -30,18 Q -30.5,17 -29.5,15.5 L -3.1,-34.2 Q -2.5,-35 0,-36 Z"
+          stroke="#1a1a1a" stroke-width="1.6" transform="rotate(0)"/>
+    <path d="M 0,-30 Q 2,-29 2.5,-28.2 L 24.5,12.5 Q 25.5,14 25,15 L -25,15 Q -25.5,14 -24.5,12.5 L -2.5,-28.2 Q -2,-29 0,-30 Z"
+          stroke="#303030" stroke-width="1.4" transform="rotate(-11)"/>
+    <path d="M 0,-24 Q 1.6,-23 2,-22.2 L 19.5,9.5 Q 20.5,11 20,12 L -20,12 Q -20.5,11 -19.5,9.5 L -2,-22.2 Q -1.6,-23 0,-24 Z"
+          stroke="#444444" stroke-width="1.2" transform="rotate(-22)"/>
+    <path d="M 0,-18 Q 1.2,-17 1.5,-16.2 L 14.5,6.5 Q 15.5,8 15,9 L -15,9 Q -15.5,8 -14.5,6.5 L -1.5,-16.2 Q -1.2,-17 0,-18 Z"
+          stroke="#585858" stroke-width="1.0" transform="rotate(-33)"/>
+    <path d="M 0,-12 Q 0.8,-11 1,-10.2 L 9.5,3.5 Q 10.5,5 10,6 L -10,6 Q -10.5,5 -9.5,3.5 L -1,-10.2 Q -0.8,-11 0,-12 Z"
+          stroke="#6c6c6c" stroke-width="0.85" transform="rotate(-44)"/>
+    <path d="M 0,-6 Q 0.4,-5 0.5,-4.2 L 4.5,0.5 Q 5.5,2 5,3 L -5,3 Q -5.5,2 -4.5,0.5 L -0.5,-4.2 Q -0.4,-5 0,-6 Z"
+          stroke="#808080" stroke-width="0.75" transform="rotate(-55)"/>
+  </g>
+
+  <!-- Text below -->
+  <text
+    x="50"
+    y="82"
+    text-anchor="middle"
+    font-family="system-ui, -apple-system, sans-serif"
+    font-size="10"
+    font-weight="300"
+    letter-spacing="0.35em"
+    fill="#1a1a1a"
+  >IMPULSE</text>
+</svg>

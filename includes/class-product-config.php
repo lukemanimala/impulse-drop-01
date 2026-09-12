@@ -11,6 +11,8 @@ class TID_Product_Config {
 
     private $product_id = 0;
     private $product = null;
+    private $product_ids = [];
+    private $tab_labels = [];
 
     /**
      * Set the product ID
@@ -18,6 +20,32 @@ class TID_Product_Config {
     public function set_product_id($product_id) {
         $this->product_id = $product_id;
         $this->product = null; // Reset cached product
+    }
+
+    /**
+     * Set multiple product IDs and tab labels
+     */
+    public function set_products($product_ids, $tab_labels = []) {
+        $this->product_ids = array_map('intval', $product_ids);
+        $this->tab_labels = $tab_labels;
+        // Set first product as default
+        if (!empty($this->product_ids)) {
+            $this->product_id = $this->product_ids[0];
+        }
+    }
+
+    /**
+     * Check if multiple products are configured
+     */
+    public function has_multiple_products() {
+        return count($this->product_ids) > 1;
+    }
+
+    /**
+     * Get tab labels
+     */
+    public function get_tab_labels() {
+        return $this->tab_labels;
     }
 
     /**
@@ -98,28 +126,45 @@ class TID_Product_Config {
         // Get variations for variable products
         if ($product->is_type('variable')) {
             $variations = $product->get_available_variations();
+            $colors = [];
+
             foreach ($variations as $variation) {
                 $size = '';
+                $color = '';
+
                 foreach ($variation['attributes'] as $attr_key => $attr_value) {
-                    if (stripos($attr_key, 'size') !== false || stripos($attr_key, 'pa_size') !== false) {
+                    $attr_key_lower = strtolower($attr_key);
+                    if (stripos($attr_key_lower, 'size') !== false || stripos($attr_key_lower, 'pa_size') !== false) {
                         $size = $attr_value;
-                        break;
+                    }
+                    if (stripos($attr_key_lower, 'color') !== false || stripos($attr_key_lower, 'colour') !== false || stripos($attr_key_lower, 'pa_color') !== false) {
+                        $color = $attr_value;
                     }
                 }
 
                 if (!$size) {
-                    // Fallback to first attribute
+                    // Fallback to first attribute if no size found
                     $size = reset($variation['attributes']) ?: 'Default';
+                }
+
+                // Track unique colors
+                if ($color && !in_array($color, $colors)) {
+                    $colors[] = $color;
                 }
 
                 $data['variations'][] = [
                     'id' => $variation['variation_id'],
                     'size' => strtoupper($size),
+                    'color' => $color,
                     'price' => $variation['display_price'],
                     'in_stock' => $variation['is_in_stock'],
                     'stock_qty' => $variation['max_qty'] ?? null,
                 ];
             }
+
+            // Add available colors to data
+            $data['colors'] = $colors;
+            $data['has_colors'] = !empty($colors);
         } else {
             // Simple product - single "one size" option
             $data['variations'][] = [
@@ -132,6 +177,32 @@ class TID_Product_Config {
         }
 
         return $data;
+    }
+
+    /**
+     * Get all products data for multi-product support
+     */
+    public function get_all_products_data() {
+        if (empty($this->product_ids)) {
+            // Fall back to single product
+            return [$this->get_product_data()];
+        }
+
+        $products = [];
+        $original_product_id = $this->product_id;
+        $original_product = $this->product;
+
+        foreach ($this->product_ids as $product_id) {
+            $this->product_id = $product_id;
+            $this->product = null; // Reset cache to load new product
+            $products[] = $this->get_product_data();
+        }
+
+        // Restore original
+        $this->product_id = $original_product_id;
+        $this->product = $original_product;
+
+        return $products;
     }
 
     /**

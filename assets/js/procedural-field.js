@@ -1,546 +1,267 @@
 /**
- * Procedural Field - Three.js Displaced Geometry System
+ * Procedural Field - SVG Path on Warping Space-Time Grid
  *
- * Creates an interactive procedural surface that reveals into a garment shape.
- * Uses layered simplex noise displacement with touch-responsive wave deformation.
+ * Draws garment outline on a grid that warps with mouse hover.
  */
 
 (function() {
     'use strict';
 
-    // Simplex noise implementation (fast, compact)
-    const SimplexNoise = (function() {
-        const F2 = 0.5 * (Math.sqrt(3) - 1);
-        const G2 = (3 - Math.sqrt(3)) / 6;
-        const F3 = 1 / 3;
-        const G3 = 1 / 6;
-
-        const grad3 = [
-            [1,1,0],[-1,1,0],[1,-1,0],[-1,-1,0],
-            [1,0,1],[-1,0,1],[1,0,-1],[-1,0,-1],
-            [0,1,1],[0,-1,1],[0,1,-1],[0,-1,-1]
-        ];
-
-        class Simplex {
-            constructor(seed = Math.random()) {
-                this.p = new Uint8Array(256);
-                this.perm = new Uint8Array(512);
-                this.permMod12 = new Uint8Array(512);
-
-                for (let i = 0; i < 256; i++) this.p[i] = i;
-
-                let n, q;
-                for (let i = 255; i > 0; i--) {
-                    seed = (seed * 16807) % 2147483647;
-                    n = Math.floor((seed / 2147483647) * (i + 1));
-                    q = this.p[i];
-                    this.p[i] = this.p[n];
-                    this.p[n] = q;
-                }
-
-                for (let i = 0; i < 512; i++) {
-                    this.perm[i] = this.p[i & 255];
-                    this.permMod12[i] = this.perm[i] % 12;
-                }
-            }
-
-            noise2D(x, y) {
-                const s = (x + y) * F2;
-                const i = Math.floor(x + s);
-                const j = Math.floor(y + s);
-                const t = (i + j) * G2;
-                const X0 = i - t;
-                const Y0 = j - t;
-                const x0 = x - X0;
-                const y0 = y - Y0;
-
-                let i1, j1;
-                if (x0 > y0) { i1 = 1; j1 = 0; }
-                else { i1 = 0; j1 = 1; }
-
-                const x1 = x0 - i1 + G2;
-                const y1 = y0 - j1 + G2;
-                const x2 = x0 - 1 + 2 * G2;
-                const y2 = y0 - 1 + 2 * G2;
-
-                const ii = i & 255;
-                const jj = j & 255;
-
-                let n0 = 0, n1 = 0, n2 = 0;
-
-                let t0 = 0.5 - x0 * x0 - y0 * y0;
-                if (t0 >= 0) {
-                    const gi0 = this.permMod12[ii + this.perm[jj]];
-                    t0 *= t0;
-                    n0 = t0 * t0 * (grad3[gi0][0] * x0 + grad3[gi0][1] * y0);
-                }
-
-                let t1 = 0.5 - x1 * x1 - y1 * y1;
-                if (t1 >= 0) {
-                    const gi1 = this.permMod12[ii + i1 + this.perm[jj + j1]];
-                    t1 *= t1;
-                    n1 = t1 * t1 * (grad3[gi1][0] * x1 + grad3[gi1][1] * y1);
-                }
-
-                let t2 = 0.5 - x2 * x2 - y2 * y2;
-                if (t2 >= 0) {
-                    const gi2 = this.permMod12[ii + 1 + this.perm[jj + 1]];
-                    t2 *= t2;
-                    n2 = t2 * t2 * (grad3[gi2][0] * x2 + grad3[gi2][1] * y2);
-                }
-
-                return 70 * (n0 + n1 + n2);
-            }
-
-            noise3D(x, y, z) {
-                const s = (x + y + z) * F3;
-                const i = Math.floor(x + s);
-                const j = Math.floor(y + s);
-                const k = Math.floor(z + s);
-                const t = (i + j + k) * G3;
-                const X0 = i - t;
-                const Y0 = j - t;
-                const Z0 = k - t;
-                const x0 = x - X0;
-                const y0 = y - Y0;
-                const z0 = z - Z0;
-
-                let i1, j1, k1, i2, j2, k2;
-                if (x0 >= y0) {
-                    if (y0 >= z0) { i1=1; j1=0; k1=0; i2=1; j2=1; k2=0; }
-                    else if (x0 >= z0) { i1=1; j1=0; k1=0; i2=1; j2=0; k2=1; }
-                    else { i1=0; j1=0; k1=1; i2=1; j2=0; k2=1; }
-                } else {
-                    if (y0 < z0) { i1=0; j1=0; k1=1; i2=0; j2=1; k2=1; }
-                    else if (x0 < z0) { i1=0; j1=1; k1=0; i2=0; j2=1; k2=1; }
-                    else { i1=0; j1=1; k1=0; i2=1; j2=1; k2=0; }
-                }
-
-                const x1 = x0 - i1 + G3;
-                const y1 = y0 - j1 + G3;
-                const z1 = z0 - k1 + G3;
-                const x2 = x0 - i2 + 2 * G3;
-                const y2 = y0 - j2 + 2 * G3;
-                const z2 = z0 - k2 + 2 * G3;
-                const x3 = x0 - 1 + 3 * G3;
-                const y3 = y0 - 1 + 3 * G3;
-                const z3 = z0 - 1 + 3 * G3;
-
-                const ii = i & 255;
-                const jj = j & 255;
-                const kk = k & 255;
-
-                let n0 = 0, n1 = 0, n2 = 0, n3 = 0;
-
-                let t0 = 0.6 - x0*x0 - y0*y0 - z0*z0;
-                if (t0 >= 0) {
-                    const gi0 = this.permMod12[ii + this.perm[jj + this.perm[kk]]];
-                    t0 *= t0;
-                    n0 = t0 * t0 * (grad3[gi0][0]*x0 + grad3[gi0][1]*y0 + grad3[gi0][2]*z0);
-                }
-
-                let t1 = 0.6 - x1*x1 - y1*y1 - z1*z1;
-                if (t1 >= 0) {
-                    const gi1 = this.permMod12[ii + i1 + this.perm[jj + j1 + this.perm[kk + k1]]];
-                    t1 *= t1;
-                    n1 = t1 * t1 * (grad3[gi1][0]*x1 + grad3[gi1][1]*y1 + grad3[gi1][2]*z1);
-                }
-
-                let t2 = 0.6 - x2*x2 - y2*y2 - z2*z2;
-                if (t2 >= 0) {
-                    const gi2 = this.permMod12[ii + i2 + this.perm[jj + j2 + this.perm[kk + k2]]];
-                    t2 *= t2;
-                    n2 = t2 * t2 * (grad3[gi2][0]*x2 + grad3[gi2][1]*y2 + grad3[gi2][2]*z2);
-                }
-
-                let t3 = 0.6 - x3*x3 - y3*y3 - z3*z3;
-                if (t3 >= 0) {
-                    const gi3 = this.permMod12[ii + 1 + this.perm[jj + 1 + this.perm[kk + 1]]];
-                    t3 *= t3;
-                    n3 = t3 * t3 * (grad3[gi3][0]*x3 + grad3[gi3][1]*y3 + grad3[gi3][2]*z3);
-                }
-
-                return 32 * (n0 + n1 + n2 + n3);
-            }
-        }
-
-        return Simplex;
-    })();
-
-    // Configuration
     const CONFIG = {
-        mesh: {
-            widthSegments: 80,
-            heightSegments: 100,
-            baseWidth: 3.2,
-            baseHeight: 4.0
+        drawing: {
+            totalDuration: 2.5,
+            lineWidth: 2.5,
+            pyramidLineWidth: 1.8
         },
-        noise: {
-            scale1: 0.8,
-            scale2: 1.6,
-            scale3: 3.2,
-            amplitude: 0.6,
-            timeScale: 0.0003
+        grid: {
+            spacing: 40,
+            lineWidth: 0.5,
+            color: 'rgba(0, 0, 0, 0.08)'
         },
         wave: {
-            maxCount: 4,
-            speed: 2.5,
-            decay: 0.92,
-            radius: 2.0,
-            strength: 0.4
+            amplitude: 6,
+            frequency: 0.006,
+            speed: 0.5,
+            layers: 2
+        },
+        hover: {
+            radius: 300,
+            strength: 40,
+            falloff: 1.6
+        },
+        pyramid: {
+            layers: 12,
+            outerRadius: 65,
+            innerRadius: 5,
+            baseTwist: -0.6,
+            rotationSpeed: 0.08,
+            breatheSpeed: 0.4,
+            breatheAmount: 0.03,
+            centerX: 0.5,
+            centerY: 0.42
+        },
+        colors: {
+            outline: '#4a4a4a',
+            pyramidLightLow: 0.15,
+            pyramidLightHigh: 0.5
         },
         reveal: {
-            duration: 3200,
-            cameraDuration: 2000
+            duration: 1000,
+            twistAcceleration: 10,
+            expandAmount: 1.5
         },
-        camera: {
-            initialZ: 6,
-            initialRotationX: 0.15,
-            finalZ: 4.5,
-            finalRotationX: 0
+        svg: {
+            path: 'assets/img/garment-outline.svg',
+            filename: 'garment-outline.svg'
         }
     };
 
-    /**
-     * Wave distortion class
-     */
-    class Wave {
-        constructor(x, y, z) {
-            this.origin = { x, y, z };
-            this.radius = 0;
-            this.strength = CONFIG.wave.strength;
-            this.active = true;
-        }
-
-        update(delta) {
-            this.radius += CONFIG.wave.speed * delta;
-            this.strength *= CONFIG.wave.decay;
-
-            if (this.strength < 0.001) {
-                this.active = false;
-            }
-
-            return this.active;
-        }
-    }
-
-    /**
-     * Main Procedural Field class
-     */
     class ProceduralField {
         constructor(container) {
             this.container = container;
-            this.scene = null;
-            this.camera = null;
-            this.renderer = null;
-            this.mesh = null;
-            this.wireframe = null;
-            this.geometry = null;
-            this.originalPositions = null;
-            this.garmentMask = null;
+            this.canvas = null;
+            this.ctx = null;
+            this.pathPoints = [];
 
-            this.noise = new SimplexNoise(42);
-            this.waves = [];
             this.time = 0;
+            this.drawProgress = 0;
+            this.pyramidRotation = 0;
             this.isRunning = false;
             this.revealProgress = 0;
             this.isRevealing = false;
             this.onRevealComplete = null;
 
+            this.width = 0;
+            this.height = 0;
+            this.scale = 1;
+            this.offsetX = 0;
+            this.offsetY = 0;
+
+            // Mouse position for hover warp (no click needed)
+            this.mouse = { x: -1000, y: -1000 };
+            this.mouseSmooth = { x: -1000, y: -1000 };
+
+            this.svgWidth = 962;
+            this.svgHeight = 943;
+
             this.reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-            this.pointer = { x: 0, y: 0 };
-            this.raycaster = null;
 
             this.init();
         }
 
         async init() {
-            // Wait for THREE to be available
-            if (typeof THREE === 'undefined') {
-                console.error('Three.js not loaded');
-                return;
-            }
-
-            this.setupScene();
-            this.setupCamera();
-            this.setupRenderer();
-            this.setupLights();
-            this.createGarmentMesh();
-            this.setupRaycaster();
+            this.createCanvas();
+            this.resize();
+            await this.loadSVG();
             this.bindEvents();
-
-            // Listen for reduced motion changes
-            window.matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change', (e) => {
-                this.reducedMotion = e.matches;
-            });
         }
 
-        setupScene() {
-            this.scene = new THREE.Scene();
-            this.scene.background = new THREE.Color(0x000000);
+        createCanvas() {
+            this.canvas = document.createElement('canvas');
+            this.canvas.style.cssText = `
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                touch-action: none;
+            `;
+            this.container.appendChild(this.canvas);
+            this.ctx = this.canvas.getContext('2d');
         }
 
-        setupCamera() {
-            const aspect = this.container.clientWidth / this.container.clientHeight;
-            this.camera = new THREE.PerspectiveCamera(45, aspect, 0.1, 100);
-            this.camera.position.z = CONFIG.camera.initialZ;
-            this.camera.rotation.x = CONFIG.camera.initialRotationX;
+        resize() {
+            const dpr = Math.min(window.devicePixelRatio, 2);
+            this.width = this.container.clientWidth;
+            this.height = this.container.clientHeight;
+            this.canvas.width = this.width * dpr;
+            this.canvas.height = this.height * dpr;
+            this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+            this.ctx.scale(dpr, dpr);
+
+            const padding = 0.1;
+            const availWidth = this.width * (1 - padding * 2);
+            const availHeight = this.height * (1 - padding * 2) - 100;
+
+            const scaleX = availWidth / this.svgWidth;
+            const scaleY = availHeight / this.svgHeight;
+            this.scale = Math.min(scaleX, scaleY) * 0.8;
+
+            this.offsetX = (this.width - this.svgWidth * this.scale) / 2;
+            this.offsetY = (this.height - this.svgHeight * this.scale) / 2 - 20;
         }
 
-        setupRenderer() {
-            this.renderer = new THREE.WebGLRenderer({
-                antialias: true,
-                alpha: false,
-                powerPreference: 'high-performance'
-            });
-            this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
-            this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-            this.container.appendChild(this.renderer.domElement);
+        async loadSVG() {
+            try {
+                // Try to get URL from page data, then tidConfig, then fallback to relative
+                const maskData = document.getElementById('tid-mask-data');
+                let svgPath = CONFIG.svg.path;
 
-            // Style the canvas
-            this.renderer.domElement.style.position = 'absolute';
-            this.renderer.domElement.style.top = '0';
-            this.renderer.domElement.style.left = '0';
-            this.renderer.domElement.style.width = '100%';
-            this.renderer.domElement.style.height = '100%';
-            this.renderer.domElement.style.touchAction = 'none';
-        }
-
-        setupLights() {
-            // Ambient light
-            const ambient = new THREE.AmbientLight(0x404040, 0.5);
-            this.scene.add(ambient);
-
-            // Key light
-            const keyLight = new THREE.DirectionalLight(0xffffff, 0.8);
-            keyLight.position.set(2, 3, 4);
-            this.scene.add(keyLight);
-
-            // Fill light
-            const fillLight = new THREE.DirectionalLight(0x8888ff, 0.3);
-            fillLight.position.set(-2, 1, 2);
-            this.scene.add(fillLight);
-
-            // Rim light
-            const rimLight = new THREE.DirectionalLight(0xffffff, 0.4);
-            rimLight.position.set(0, -1, -3);
-            this.scene.add(rimLight);
-        }
-
-        createGarmentMesh() {
-            const { widthSegments, heightSegments, baseWidth, baseHeight } = CONFIG.mesh;
-
-            // Create a plane geometry
-            this.geometry = new THREE.PlaneGeometry(
-                baseWidth,
-                baseHeight,
-                widthSegments,
-                heightSegments
-            );
-
-            // Store original positions for animation
-            this.originalPositions = new Float32Array(this.geometry.attributes.position.array);
-
-            // Apply garment silhouette mask to vertices
-            this.applyGarmentShape();
-
-            // Material - dark with subtle metallic feel
-            const material = new THREE.MeshStandardMaterial({
-                color: 0x1a1a1a,
-                metalness: 0.2,
-                roughness: 0.8,
-                side: THREE.DoubleSide,
-                flatShading: false
-            });
-
-            this.mesh = new THREE.Mesh(this.geometry, material);
-            this.scene.add(this.mesh);
-
-            // Wireframe overlay
-            const wireframeMaterial = new THREE.MeshBasicMaterial({
-                color: 0x444444,
-                wireframe: true,
-                transparent: true,
-                opacity: 0.3
-            });
-
-            this.wireframe = new THREE.Mesh(this.geometry, wireframeMaterial);
-            this.scene.add(this.wireframe);
-
-            // Add contour lines
-            this.createContourLines();
-        }
-
-        applyGarmentShape() {
-            const positions = this.geometry.attributes.position.array;
-            const { widthSegments, heightSegments, baseWidth, baseHeight } = CONFIG.mesh;
-
-            // Create garment silhouette mask
-            // This shapes the plane to resemble the sleeveless vest
-            for (let i = 0; i < positions.length; i += 3) {
-                const x = positions[i];
-                const y = positions[i + 1];
-
-                // Normalize to 0-1
-                const nx = (x / baseWidth) + 0.5;
-                const ny = (y / baseHeight) + 0.5;
-
-                // Vest shape parameters
-                const centerX = 0.5;
-                const bodyWidth = 0.55;
-                const shoulderWidth = 0.7;
-                const neckWidth = 0.25;
-                const armholeDepth = 0.35;
-
-                let mask = 1.0;
-
-                // Top (neck and shoulders)
-                if (ny > 0.85) {
-                    const neckDist = Math.abs(nx - centerX);
-                    if (neckDist < neckWidth * 0.5) {
-                        // Inside neck opening
-                        const neckCurve = 1 - Math.pow(neckDist / (neckWidth * 0.5), 2);
-                        mask = Math.max(0, 1 - neckCurve * 0.8);
-                    }
+                if (maskData) {
+                    try {
+                        const data = JSON.parse(maskData.textContent);
+                        if (data.outlineUrl) svgPath = data.outlineUrl;
+                    } catch (e) {}
+                } else if (window.tidConfig?.assets_url) {
+                    svgPath = window.tidConfig.assets_url + 'img/' + CONFIG.svg.filename;
                 }
 
-                // Armholes (sides)
-                if (ny > 0.5 && ny < 0.9) {
-                    const sideProgress = (ny - 0.5) / 0.4;
-                    const armholeCurve = Math.sin(sideProgress * Math.PI);
-                    const currentWidth = bodyWidth + (shoulderWidth - bodyWidth) * sideProgress;
+                const response = await fetch(svgPath);
+                const svgText = await response.text();
 
-                    if (Math.abs(nx - centerX) > currentWidth * 0.5) {
-                        const edgeDist = Math.abs(nx - centerX) - currentWidth * 0.5;
-                        mask = Math.max(0, 1 - edgeDist * 4);
-                    }
+                const parser = new DOMParser();
+                const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
+                const pathElement = svgDoc.querySelector('path');
 
-                    // Carve armholes deeper
-                    if (ny > 0.65 && ny < 0.85) {
-                        const armholeY = (ny - 0.65) / 0.2;
-                        const armholeCurve = Math.sin(armholeY * Math.PI);
-                        const sideX = Math.abs(nx - centerX);
-                        if (sideX > bodyWidth * 0.45) {
-                            mask *= 1 - armholeCurve * 0.7;
-                        }
-                    }
+                if (!pathElement) return;
+
+                const tempSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                tempSvg.setAttribute('width', this.svgWidth);
+                tempSvg.setAttribute('height', this.svgHeight);
+                tempSvg.style.position = 'absolute';
+                tempSvg.style.visibility = 'hidden';
+
+                const tempPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                tempPath.setAttribute('d', pathElement.getAttribute('d'));
+                tempSvg.appendChild(tempPath);
+                document.body.appendChild(tempSvg);
+
+                const pathLength = tempPath.getTotalLength();
+                const numPoints = 500;
+                this.pathPoints = [];
+
+                for (let i = 0; i <= numPoints; i++) {
+                    const distance = (i / numPoints) * pathLength;
+                    const point = tempPath.getPointAtLength(distance);
+                    this.pathPoints.push({ x: point.x, y: point.y });
                 }
 
-                // Store mask for later use
-                this.geometry.attributes.position.array[i + 2] = mask > 0.1 ? 0 : -10; // Hide masked vertices
+                document.body.removeChild(tempSvg);
+
+            } catch (error) {
+                console.error('Failed to load SVG:', error);
             }
-
-            this.geometry.attributes.position.needsUpdate = true;
-            this.geometry.computeVertexNormals();
-        }
-
-        createContourLines() {
-            // Create procedural contour lines using line segments
-            const contourMaterial = new THREE.LineBasicMaterial({
-                color: 0x666666,
-                transparent: true,
-                opacity: 0.4
-            });
-
-            const contourGroup = new THREE.Group();
-
-            // Horizontal contours
-            for (let i = 0; i < 15; i++) {
-                const y = -2 + (i / 14) * 4;
-                const points = [];
-                for (let j = 0; j <= 40; j++) {
-                    const x = -1.6 + (j / 40) * 3.2;
-                    const z = 0;
-                    points.push(new THREE.Vector3(x, y, z));
-                }
-                const lineGeom = new THREE.BufferGeometry().setFromPoints(points);
-                const line = new THREE.Line(lineGeom, contourMaterial);
-                contourGroup.add(line);
-            }
-
-            this.contourLines = contourGroup;
-            this.scene.add(contourGroup);
-        }
-
-        setupRaycaster() {
-            this.raycaster = new THREE.Raycaster();
         }
 
         bindEvents() {
-            // Resize
-            window.addEventListener('resize', () => this.onResize());
+            window.addEventListener('resize', () => this.resize());
 
-            // Pointer events
-            const canvas = this.renderer.domElement;
-            canvas.addEventListener('pointerdown', (e) => this.onPointerDown(e));
-            canvas.addEventListener('pointermove', (e) => this.onPointerMove(e));
-
-            // Keyboard
-            canvas.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    this.createWave(0, 0, 0);
-                }
+            // Mouse tracking - just hover, no click needed
+            window.addEventListener('mousemove', (e) => {
+                const rect = this.canvas.getBoundingClientRect();
+                this.mouse.x = e.clientX - rect.left;
+                this.mouse.y = e.clientY - rect.top;
             });
-            canvas.tabIndex = 0;
+
+            // Touch support
+            this.canvas.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                const rect = this.canvas.getBoundingClientRect();
+                const touch = e.touches[0];
+                this.mouse.x = touch.clientX - rect.left;
+                this.mouse.y = touch.clientY - rect.top;
+            }, { passive: false });
+
+            this.canvas.addEventListener('touchend', () => {
+                this.mouse.x = -1000;
+                this.mouse.y = -1000;
+            });
+
+            this.canvas.tabIndex = 0;
         }
 
-        onResize() {
-            const width = this.container.clientWidth;
-            const height = this.container.clientHeight;
+        // Calculate wave distortion at a point
+        getWaveOffset(x, y, time) {
+            const { amplitude, frequency, speed, layers } = CONFIG.wave;
+            let offsetX = 0;
+            let offsetY = 0;
 
-            this.camera.aspect = width / height;
-            this.camera.updateProjectionMatrix();
-            this.renderer.setSize(width, height);
-        }
+            for (let i = 0; i < layers; i++) {
+                const layerFreq = frequency * (1 + i * 0.5);
+                const layerAmp = amplitude / (1 + i * 0.5);
+                const layerSpeed = speed * (1 + i * 0.3);
+                const phase = i * 1.5;
 
-        onPointerDown(e) {
-            this.updatePointer(e);
-            this.castWave();
-        }
-
-        onPointerMove(e) {
-            this.updatePointer(e);
-            // Create subtle waves on drag
-            if (e.pressure > 0 && Math.random() > 0.7) {
-                this.castWave();
+                offsetX += Math.sin(y * layerFreq + time * layerSpeed + phase) * layerAmp;
+                offsetY += Math.cos(x * layerFreq + time * layerSpeed + phase) * layerAmp;
             }
+
+            return { x: offsetX, y: offsetY };
         }
 
-        updatePointer(e) {
-            const rect = this.renderer.domElement.getBoundingClientRect();
-            this.pointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-            this.pointer.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+        // Calculate hover warp at a point
+        getHoverOffset(x, y) {
+            const dx = x - this.mouseSmooth.x;
+            const dy = y - this.mouseSmooth.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            if (dist > CONFIG.hover.radius || dist < 1) return { x: 0, y: 0 };
+
+            const { radius, strength, falloff } = CONFIG.hover;
+            const factor = Math.pow(1 - dist / radius, falloff);
+
+            // Push points away from cursor
+            const pushX = (dx / dist) * factor * strength;
+            const pushY = (dy / dist) * factor * strength;
+
+            return { x: pushX, y: pushY };
         }
 
-        castWave() {
-            this.raycaster.setFromCamera(this.pointer, this.camera);
-            const intersects = this.raycaster.intersectObject(this.mesh);
+        // Get total distortion at a point
+        getDistortedPoint(x, y) {
+            const wave = this.getWaveOffset(x, y, this.time);
+            let newX = x + wave.x;
+            let newY = y + wave.y;
 
-            if (intersects.length > 0) {
-                const point = intersects[0].point;
-                this.createWave(point.x, point.y, point.z);
+            const hover = this.getHoverOffset(newX, newY);
+            newX += hover.x;
+            newY += hover.y;
 
-                // Dispatch event
-                this.container.dispatchEvent(new CustomEvent('tid:ripple', {
-                    detail: { x: point.x, y: point.y }
-                }));
-            }
+            return { x: newX, y: newY };
         }
 
-        createWave(x, y, z) {
-            if (this.waves.length >= CONFIG.wave.maxCount) {
-                this.waves.shift();
-            }
-            this.waves.push(new Wave(x, y, z));
-        }
-
-        /**
-         * Start reveal animation
-         */
         startReveal(callback) {
             if (this.isRevealing) return;
-
             this.isRevealing = true;
             this.revealProgress = 0;
             this.onRevealComplete = callback;
@@ -552,9 +273,6 @@
             }
         }
 
-        /**
-         * Start animation loop
-         */
         start() {
             if (this.isRunning) return;
             this.isRunning = true;
@@ -562,25 +280,31 @@
             this.animate();
         }
 
-        /**
-         * Stop animation loop
-         */
         stop() {
             this.isRunning = false;
         }
 
-        /**
-         * Main animation loop
-         */
         animate() {
             if (!this.isRunning) return;
 
             const now = performance.now();
             const delta = (now - this.lastTime) / 1000;
             this.lastTime = now;
-            this.time = now;
+            this.time += delta;
 
-            // Update reveal progress
+            // Smooth mouse following
+            this.mouseSmooth.x += (this.mouse.x - this.mouseSmooth.x) * 0.15;
+            this.mouseSmooth.y += (this.mouse.y - this.mouseSmooth.y) * 0.15;
+
+            // Drawing progress
+            if (this.drawProgress < 1) {
+                this.drawProgress = Math.min(1, this.time / CONFIG.drawing.totalDuration);
+            }
+
+            // Pyramid rotation is now handled per-layer in renderPyramid
+            // No need for global rotation tracking
+
+            // Reveal progress
             if (this.isRevealing && this.revealProgress < 1) {
                 this.revealProgress += delta / (CONFIG.reveal.duration / 1000);
                 if (this.revealProgress >= 1) {
@@ -592,189 +316,231 @@
                 }
             }
 
-            // Update waves
-            this.waves = this.waves.filter(wave => wave.update(delta));
-
-            // Update geometry
-            this.updateGeometry();
-
-            // Update camera for reveal
-            this.updateCamera();
-
-            // Update materials
-            this.updateMaterials();
-
-            // Render
-            this.renderer.render(this.scene, this.camera);
-
+            this.render();
             requestAnimationFrame(() => this.animate());
         }
 
-        updateGeometry() {
-            const positions = this.geometry.attributes.position.array;
-            const original = this.originalPositions;
-            const time = this.time * CONFIG.noise.timeScale;
+        render() {
+            const ctx = this.ctx;
+            const revealEased = this.easeInOutCubic(this.revealProgress);
+            const fade = 1 - revealEased * 0.98;
 
-            // Noise amplitude decreases during reveal
-            const noiseAmp = CONFIG.noise.amplitude * (1 - this.easeInOutCubic(this.revealProgress) * 0.9);
+            // Clear
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, this.width, this.height);
 
-            for (let i = 0; i < positions.length; i += 3) {
-                const ox = original[i];
-                const oy = original[i + 1];
-                const oz = original[i + 2];
+            ctx.save();
+            ctx.globalAlpha = fade;
 
-                // Skip masked vertices
-                if (oz < -5) continue;
+            // Draw space-time grid
+            this.renderGrid(ctx);
 
-                // Layered noise displacement
-                let displacement = 0;
+            // Draw garment outline
+            if (this.pathPoints.length > 0) {
+                this.renderOutline(ctx);
+                this.renderPyramid(ctx, revealEased);
+            }
 
-                if (!this.reducedMotion) {
-                    const n1 = this.noise.noise3D(
-                        ox * CONFIG.noise.scale1,
-                        oy * CONFIG.noise.scale1,
-                        time
-                    );
-                    const n2 = this.noise.noise3D(
-                        ox * CONFIG.noise.scale2 + 100,
-                        oy * CONFIG.noise.scale2,
-                        time * 1.5
-                    );
-                    const n3 = this.noise.noise3D(
-                        ox * CONFIG.noise.scale3 + 200,
-                        oy * CONFIG.noise.scale3,
-                        time * 2
-                    );
+            ctx.restore();
 
-                    displacement = (n1 * 0.5 + n2 * 0.3 + n3 * 0.2) * noiseAmp;
-                }
+            // Bottom gradient overlay - darker grey at bottom
+            const gradientHeight = this.height * 0.4;
+            const gradient = ctx.createLinearGradient(0, this.height - gradientHeight, 0, this.height);
+            gradient.addColorStop(0, 'rgba(255, 255, 255, 0)');
+            gradient.addColorStop(0.5, 'rgba(180, 180, 180, 0.3)');
+            gradient.addColorStop(1, 'rgba(100, 100, 100, 0.6)');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, this.height - gradientHeight, this.width, gradientHeight);
+        }
 
-                // Wave displacement
-                for (const wave of this.waves) {
-                    const dx = ox - wave.origin.x;
-                    const dy = oy - wave.origin.y;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-                    const waveEdge = wave.radius;
-                    const waveWidth = 0.5;
+        renderGrid(ctx) {
+            const { spacing, lineWidth, color } = CONFIG.grid;
 
-                    if (dist < waveEdge + waveWidth && dist > waveEdge - waveWidth) {
-                        const waveDist = Math.abs(dist - waveEdge);
-                        const waveStrength = (1 - waveDist / waveWidth) * wave.strength;
-                        displacement += Math.sin(waveDist * 10) * waveStrength;
+            ctx.strokeStyle = color;
+            ctx.lineWidth = lineWidth;
+
+            // Horizontal lines
+            for (let y = 0; y < this.height + spacing; y += spacing) {
+                ctx.beginPath();
+                for (let x = 0; x <= this.width; x += 10) {
+                    const distorted = this.getDistortedPoint(x, y);
+                    if (x === 0) {
+                        ctx.moveTo(distorted.x, distorted.y);
+                    } else {
+                        ctx.lineTo(distorted.x, distorted.y);
                     }
                 }
-
-                // Apply displacement
-                positions[i + 2] = displacement;
+                ctx.stroke();
             }
 
-            this.geometry.attributes.position.needsUpdate = true;
-            this.geometry.computeVertexNormals();
-
-            // Update wireframe to match
-            if (this.wireframe) {
-                this.wireframe.geometry.attributes.position.needsUpdate = true;
+            // Vertical lines
+            for (let x = 0; x < this.width + spacing; x += spacing) {
+                ctx.beginPath();
+                for (let y = 0; y <= this.height; y += 10) {
+                    const distorted = this.getDistortedPoint(x, y);
+                    if (y === 0) {
+                        ctx.moveTo(distorted.x, distorted.y);
+                    } else {
+                        ctx.lineTo(distorted.x, distorted.y);
+                    }
+                }
+                ctx.stroke();
             }
-
-            // Update contour lines
-            this.updateContourLines();
         }
 
-        updateContourLines() {
-            if (!this.contourLines) return;
+        renderOutline(ctx) {
+            const pointsToDraw = Math.floor(this.drawProgress * this.pathPoints.length);
+            if (pointsToDraw < 2) return;
 
-            const progress = this.easeInOutCubic(this.revealProgress);
+            ctx.beginPath();
 
-            this.contourLines.children.forEach((line, i) => {
-                const positions = line.geometry.attributes.position.array;
+            for (let i = 0; i < pointsToDraw; i++) {
+                const point = this.pathPoints[i];
 
-                for (let j = 0; j < positions.length; j += 3) {
-                    const x = positions[j];
-                    const y = positions[j + 1];
-                    const time = this.time * CONFIG.noise.timeScale;
+                // Convert to screen coordinates
+                const screenX = this.offsetX + point.x * this.scale;
+                const screenY = this.offsetY + point.y * this.scale;
 
-                    // Match mesh displacement
-                    const noiseAmp = CONFIG.noise.amplitude * (1 - progress * 0.9) * 0.5;
-                    const n = this.noise.noise3D(
-                        x * CONFIG.noise.scale1,
-                        y * CONFIG.noise.scale1,
-                        time
-                    );
+                // Apply distortion
+                const distorted = this.getDistortedPoint(screenX, screenY);
 
-                    positions[j + 2] = n * noiseAmp + 0.01; // Slightly in front of mesh
+                if (i === 0) {
+                    ctx.moveTo(distorted.x, distorted.y);
+                } else {
+                    ctx.lineTo(distorted.x, distorted.y);
+                }
+            }
+
+            ctx.strokeStyle = CONFIG.colors.outline;
+            ctx.lineWidth = CONFIG.drawing.lineWidth;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.stroke();
+        }
+
+        renderPyramid(ctx, revealEased) {
+            const { layers, outerRadius, innerRadius, baseTwist, breatheSpeed, breatheAmount } = CONFIG.pyramid;
+
+            const garmentCenterX = this.svgWidth * CONFIG.pyramid.centerX;
+            const garmentCenterY = this.svgHeight * CONFIG.pyramid.centerY;
+
+            const screenX = this.offsetX + garmentCenterX * this.scale;
+            const screenY = this.offsetY + garmentCenterY * this.scale;
+
+            // Apply distortion to center
+            const distorted = this.getDistortedPoint(screenX, screenY);
+
+            const breathe = Math.sin(this.time * breatheSpeed) * breatheAmount;
+
+            // Continuous growth - starts at 40% and grows over time
+            const growthSpeed = 0.008;
+            const minScale = 0.4;
+            const growthScale = Math.min(1, this.time * growthSpeed);
+            const easedGrowth = minScale + (1 - minScale) * (1 - Math.pow(1 - growthScale, 3));
+
+            // Zoom through effect - exponential scale increase
+            const zoomScale = this.isRevealing ? 1 + Math.pow(revealEased, 2) * 15 : 1;
+
+            // Overall fade as we zoom through
+            const zoomFade = Math.max(0, 1 - revealEased * 1.2);
+            if (zoomFade <= 0) return;
+
+            ctx.save();
+            ctx.translate(distorted.x, distorted.y);
+            ctx.scale(easedGrowth * zoomScale, easedGrowth * zoomScale);
+            ctx.globalAlpha *= zoomFade;
+
+            // Each layer twists independently based on its depth
+            for (let i = 0; i < layers; i++) {
+                const t = i / (layers - 1);
+                const radius = (outerRadius - (outerRadius - innerRadius) * t) * this.scale * 7.5;
+
+                const rotationSpeed = CONFIG.pyramid.rotationSpeed * (1 + t * 2);
+                const timeRotation = this.time * rotationSpeed;
+
+                // During zoom, outer layers fade first (they "pass by")
+                // Inner layers stay visible longer
+                const layerFade = this.isRevealing
+                    ? Math.max(0, 1 - (revealEased * 2 - (1 - t) * 0.8))
+                    : 1;
+
+                if (layerFade <= 0) continue;
+
+                const twist = baseTwist * t + timeRotation + breathe * (1 + t);
+
+                const light = CONFIG.colors.pyramidLightLow +
+                    (CONFIG.colors.pyramidLightHigh - CONFIG.colors.pyramidLightLow) * t;
+
+                ctx.save();
+                ctx.globalAlpha *= layerFade;
+
+                // Draw rounded triangle - radius increases with layer (outer = more rounded)
+                const cornerRadius = Math.min(3 + (1 - t) * 12, radius * 0.4);
+
+                // Calculate 3 vertices
+                const vertices = [];
+                for (let v = 0; v < 3; v++) {
+                    const angle = (v / 3) * Math.PI * 2 - Math.PI / 2 + twist;
+                    vertices.push({
+                        x: Math.cos(angle) * radius,
+                        y: Math.sin(angle) * radius
+                    });
                 }
 
-                line.geometry.attributes.position.needsUpdate = true;
-            });
+                // Draw rounded triangle using arcTo for each corner
+                ctx.beginPath();
 
-            // Fade contours during reveal
-            this.contourLines.children.forEach(line => {
-                line.material.opacity = 0.4 * (1 - progress * 0.6);
-            });
-        }
+                // Start between vertex 2 and vertex 0
+                const v0 = vertices[0], v1 = vertices[1], v2 = vertices[2];
 
-        updateCamera() {
-            const progress = this.easeInOutCubic(this.revealProgress);
+                // Move to a point on the edge approaching v0
+                const startDx = v0.x - v2.x;
+                const startDy = v0.y - v2.y;
+                const startLen = Math.sqrt(startDx * startDx + startDy * startDy);
+                ctx.moveTo(
+                    v0.x - (startDx / startLen) * cornerRadius,
+                    v0.y - (startDy / startLen) * cornerRadius
+                );
 
-            // Interpolate camera position
-            this.camera.position.z = CONFIG.camera.initialZ +
-                (CONFIG.camera.finalZ - CONFIG.camera.initialZ) * progress;
+                // Arc around v0 towards v1
+                ctx.arcTo(v0.x, v0.y, v1.x, v1.y, cornerRadius);
+                // Arc around v1 towards v2
+                ctx.arcTo(v1.x, v1.y, v2.x, v2.y, cornerRadius);
+                // Arc around v2 towards v0
+                ctx.arcTo(v2.x, v2.y, v0.x, v0.y, cornerRadius);
+                // Close back to start
+                ctx.closePath();
 
-            this.camera.rotation.x = CONFIG.camera.initialRotationX +
-                (CONFIG.camera.finalRotationX - CONFIG.camera.initialRotationX) * progress;
-        }
+                ctx.strokeStyle = `hsl(0, 0%, ${light * 100}%)`;
+                ctx.lineWidth = CONFIG.drawing.pyramidLineWidth - t * 0.6;
+                ctx.stroke();
 
-        updateMaterials() {
-            const progress = this.easeInOutCubic(this.revealProgress);
+                if (t > 0.4) {
+                    ctx.fillStyle = `hsla(0, 0%, ${light * 100}%, ${0.08 * t})`;
+                    ctx.fill();
+                }
 
-            // Mesh becomes lighter during reveal
-            if (this.mesh && this.mesh.material) {
-                const brightness = 0.1 + progress * 0.15;
-                this.mesh.material.color.setRGB(brightness, brightness, brightness);
-                this.mesh.material.roughness = 0.8 - progress * 0.3;
+                ctx.restore();
             }
 
-            // Wireframe fades
-            if (this.wireframe && this.wireframe.material) {
-                this.wireframe.material.opacity = 0.3 * (1 - progress * 0.7);
-            }
+            ctx.restore();
         }
 
         easeInOutCubic(t) {
-            return t < 0.5
-                ? 4 * t * t * t
-                : 1 - Math.pow(-2 * t + 2, 3) / 2;
+            return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
         }
 
-        /**
-         * Get reveal progress (0-1)
-         */
         getRevealProgress() {
             return this.revealProgress;
         }
 
-        /**
-         * Cleanup
-         */
         dispose() {
             this.stop();
-
-            if (this.renderer) {
-                this.renderer.dispose();
-                this.container.removeChild(this.renderer.domElement);
-            }
-
-            if (this.geometry) {
-                this.geometry.dispose();
-            }
-
-            if (this.mesh && this.mesh.material) {
-                this.mesh.material.dispose();
+            if (this.canvas && this.canvas.parentNode) {
+                this.canvas.parentNode.removeChild(this.canvas);
             }
         }
     }
 
-    // Export
     window.ProceduralField = ProceduralField;
-
 })();

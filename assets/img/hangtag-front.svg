@@ -1,0 +1,70 @@
+<svg viewBox="0 0 50 130" xmlns="http://www.w3.org/2000/svg">
+  <!-- Hangtag Front - 5cm x 13cm -->
+
+  <!-- Background -->
+  <rect width="50" height="130" fill="#fafafa"/>
+
+  <!-- Topographic contour lines pattern -->
+  <g stroke="#e8e8e8" stroke-width="0.3" fill="none">
+    <path d="M -5,15 Q 10,12 20,16 T 40,14 T 60,18"/>
+    <path d="M -5,22 Q 12,19 22,24 T 42,20 T 60,26"/>
+    <path d="M -5,30 Q 8,34 25,28 T 45,32 T 60,30"/>
+    <path d="M -5,40 Q 15,36 28,42 T 48,38 T 60,44"/>
+    <path d="M -5,50 Q 10,54 26,48 T 46,52 T 60,50"/>
+    <path d="M -5,62 Q 18,58 30,64 T 50,60 T 60,66"/>
+    <path d="M -5,75 Q 12,78 28,72 T 48,76 T 60,74"/>
+    <path d="M -5,88 Q 15,84 30,90 T 50,86 T 60,92"/>
+    <path d="M -5,102 Q 10,106 26,100 T 46,104 T 60,102"/>
+    <path d="M -5,116 Q 14,112 28,118 T 48,114 T 60,120"/>
+  </g>
+
+  <!-- Secondary contour layer -->
+  <g stroke="#f0f0f0" stroke-width="0.2" fill="none">
+    <path d="M -5,18 Q 14,15 24,20 T 44,16 T 60,22"/>
+    <path d="M -5,45 Q 16,50 30,44 T 50,48 T 60,45"/>
+    <path d="M -5,70 Q 12,66 26,72 T 46,68 T 60,74"/>
+    <path d="M -5,95 Q 14,100 28,94 T 48,98 T 60,95"/>
+  </g>
+
+  <!-- Hang hole -->
+  <circle cx="25" cy="8" r="2.5" fill="none" stroke="#d0d0d0" stroke-width="0.5"/>
+
+  <!-- Drop name -->
+  <text
+    x="25"
+    y="58"
+    text-anchor="middle"
+    font-family="system-ui, -apple-system, sans-serif"
+    font-size="4"
+    font-weight="300"
+    letter-spacing="0.4em"
+    fill="#1a1a1a"
+  >DROP</text>
+
+  <text
+    x="25"
+    y="72"
+    text-anchor="middle"
+    font-family="system-ui, -apple-system, sans-serif"
+    font-size="14"
+    font-weight="200"
+    letter-spacing="0.05em"
+    fill="#1a1a1a"
+  >01</text>
+
+  <!-- Subtle divider -->
+  <line x1="18" y1="80" x2="32" y2="80" stroke="#d0d0d0" stroke-width="0.3"/>
+
+  <!-- Season/Year -->
+  <text
+    x="25"
+    y="90"
+    text-anchor="middle"
+    font-family="system-ui, -apple-system, sans-serif"
+    font-size="3"
+    font-weight="400"
+    letter-spacing="0.3em"
+    fill="#888888"
+  >SS26</text>
+
+</svg>

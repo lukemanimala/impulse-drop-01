@@ -1,0 +1,50 @@
+/**
+ * WooCommerce Page Cleanup
+ * Minimal branding adjustments - doesn't touch form elements
+ */
+
+/* Site title styling (change actual title in WordPress → Settings → General) */
+.wp-block-site-title a {
+    font-weight: 500 !important;
+    letter-spacing: 0.15em !important;
+    text-transform: uppercase !important;
+    text-decoration: none !important;
+}
+
+/* Footer - hide placeholder navigation links */
+footer .wp-block-navigation,
+.wp-block-template-part footer .wp-block-navigation {
+    display: none !important;
+}
+
+/* Hide "Proudly powered by WordPress" or similar */
+.wp-block-site-generator,
+.powered-by-wordpress,
+footer p:has(a[href*="wordpress"]) {
+    display: none !important;
+}
+
+/* Cart page - hide product title link (keep text) */
+.wc-block-cart .wc-block-components-product-name {
+    pointer-events: none;
+    text-decoration: none !important;
+}
+
+/* Order confirmation - hide product link */
+.woocommerce-order-details .woocommerce-table a[href*="product"],
+.woocommerce-table--order-details a {
+    pointer-events: none;
+    text-decoration: none !important;
+    color: inherit !important;
+}
+
+/* Hide unnecessary nav items in header */
+header .wp-block-navigation-item:has(a[href*="sample-page"]),
+header .wp-block-navigation-item:has(a[href*="my-account"]) {
+    display: none !important;
+}
+
+/* Cleaner header nav spacing */
+header .wp-block-navigation {
+    gap: 24px;
+}

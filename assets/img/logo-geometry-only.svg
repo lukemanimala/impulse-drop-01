@@ -1,0 +1,126 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Twisted pyramid with rounded corners - matching logo-animation.html -->
+  <!-- 12 layers, twist: -0.6, cornerRadius: 0.04 -->
+  <g transform="translate(50, 50)" fill="none">
+    <!-- Layer 1 (outermost) - progress 0 -->
+    <path d="M 0,-36
+             Q 2.5,-35 3.1,-34.2
+             L 29.5,15.5
+             Q 30.5,17 30,18
+             L -30,18
+             Q -30.5,17 -29.5,15.5
+             L -3.1,-34.2
+             Q -2.5,-35 0,-36 Z"
+          stroke="#1a1a1a" stroke-width="1.6" transform="rotate(0)"/>
+    <!-- Layer 2 - progress 0.09 -->
+    <path d="M 0,-33
+             Q 2.2,-32 2.8,-31.2
+             L 27,14
+             Q 28,15.5 27.5,16.5
+             L -27.5,16.5
+             Q -28,15.5 -27,14
+             L -2.8,-31.2
+             Q -2.2,-32 0,-33 Z"
+          stroke="#252525" stroke-width="1.5" transform="rotate(-5.5)"/>
+    <!-- Layer 3 - progress 0.18 -->
+    <path d="M 0,-30
+             Q 2,-29 2.5,-28.2
+             L 24.5,12.5
+             Q 25.5,14 25,15
+             L -25,15
+             Q -25.5,14 -24.5,12.5
+             L -2.5,-28.2
+             Q -2,-29 0,-30 Z"
+          stroke="#303030" stroke-width="1.4" transform="rotate(-11)"/>
+    <!-- Layer 4 - progress 0.27 -->
+    <path d="M 0,-27
+             Q 1.8,-26 2.2,-25.2
+             L 22,11
+             Q 23,12.5 22.5,13.5
+             L -22.5,13.5
+             Q -23,12.5 -22,11
+             L -2.2,-25.2
+             Q -1.8,-26 0,-27 Z"
+          stroke="#3a3a3a" stroke-width="1.3" transform="rotate(-16.5)"/>
+    <!-- Layer 5 - progress 0.36 -->
+    <path d="M 0,-24
+             Q 1.6,-23 2,-22.2
+             L 19.5,9.5
+             Q 20.5,11 20,12
+             L -20,12
+             Q -20.5,11 -19.5,9.5
+             L -2,-22.2
+             Q -1.6,-23 0,-24 Z"
+          stroke="#444444" stroke-width="1.2" transform="rotate(-22)"/>
+    <!-- Layer 6 - progress 0.45 -->
+    <path d="M 0,-21
+             Q 1.4,-20 1.8,-19.2
+             L 17,8
+             Q 18,9.5 17.5,10.5
+             L -17.5,10.5
+             Q -18,9.5 -17,8
+             L -1.8,-19.2
+             Q -1.4,-20 0,-21 Z"
+          stroke="#4e4e4e" stroke-width="1.1" transform="rotate(-27.5)"/>
+    <!-- Layer 7 - progress 0.55 -->
+    <path d="M 0,-18
+             Q 1.2,-17 1.5,-16.2
+             L 14.5,6.5
+             Q 15.5,8 15,9
+             L -15,9
+             Q -15.5,8 -14.5,6.5
+             L -1.5,-16.2
+             Q -1.2,-17 0,-18 Z"
+          stroke="#585858" stroke-width="1.0" transform="rotate(-33)"/>
+    <!-- Layer 8 - progress 0.64 -->
+    <path d="M 0,-15
+             Q 1,-14 1.2,-13.2
+             L 12,5
+             Q 13,6.5 12.5,7.5
+             L -12.5,7.5
+             Q -13,6.5 -12,5
+             L -1.2,-13.2
+             Q -1,-14 0,-15 Z"
+          stroke="#626262" stroke-width="0.9" transform="rotate(-38.5)"/>
+    <!-- Layer 9 - progress 0.73 -->
+    <path d="M 0,-12
+             Q 0.8,-11 1,-10.2
+             L 9.5,3.5
+             Q 10.5,5 10,6
+             L -10,6
+             Q -10.5,5 -9.5,3.5
+             L -1,-10.2
+             Q -0.8,-11 0,-12 Z"
+          stroke="#6c6c6c" stroke-width="0.85" transform="rotate(-44)"/>
+    <!-- Layer 10 - progress 0.82 -->
+    <path d="M 0,-9
+             Q 0.6,-8 0.8,-7.2
+             L 7,2
+             Q 8,3.5 7.5,4.5
+             L -7.5,4.5
+             Q -8,3.5 -7,2
+             L -0.8,-7.2
+             Q -0.6,-8 0,-9 Z"
+          stroke="#767676" stroke-width="0.8" transform="rotate(-49.5)"/>
+    <!-- Layer 11 - progress 0.91 -->
+    <path d="M 0,-6
+             Q 0.4,-5 0.5,-4.2
+             L 4.5,0.5
+             Q 5.5,2 5,3
+             L -5,3
+             Q -5.5,2 -4.5,0.5
+             L -0.5,-4.2
+             Q -0.4,-5 0,-6 Z"
+          stroke="#808080" stroke-width="0.75" transform="rotate(-55)"/>
+    <!-- Layer 12 (innermost) - progress 1.0 -->
+    <path d="M 0,-3
+             Q 0.2,-2 0.3,-1.2
+             L 2,-1
+             Q 3,0.5 2.5,1.5
+             L -2.5,1.5
+             Q -3,0.5 -2,-1
+             L -0.3,-1.2
+             Q -0.2,-2 0,-3 Z"
+          stroke="#8a8a8a" stroke-width="0.7" transform="rotate(-60)"/>
+  </g>
+</svg>

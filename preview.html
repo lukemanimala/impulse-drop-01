@@ -6,12 +6,12 @@
     <title>True Impulse Drop 01 - Preview</title>
     <link rel="stylesheet" href="assets/css/drop-01.css">
     <style>
-        /* Preview-specific overrides */
+        /* Preview-specific overrides - LIGHT THEME */
         * { margin: 0; padding: 0; }
         html, body {
             height: 100%;
             overflow: hidden;
-            background: #000;
+            background: #fff;
         }
         .screen-reader-text {
             position: absolute !important;
@@ -25,11 +25,265 @@
             border: 0 !important;
         }
 
+        /* Override dark theme from main CSS */
+        .tid-drop {
+            background: #fff !important;
+            color: #000 !important;
+        }
+
+        .tid-loading {
+            background: #fff !important;
+            transition: opacity 0.8s ease-out !important;
+        }
+
+        .tid-loading__wordmark {
+            color: #000 !important;
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .tid-drop[data-state="field"] .tid-loading__wordmark,
+        .tid-drop[data-state="formation"] .tid-loading__wordmark {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        /* Loading logo SVG */
+        .tid-loading__logo {
+            margin-top: 24px;
+            animation: logoSpin 4s linear infinite;
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+
+        .tid-loading__logo svg {
+            display: block;
+        }
+
+        @keyframes logoSpin {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(0.7); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+
+        .tid-drop[data-state="field"] .tid-loading__logo,
+        .tid-drop[data-state="formation"] .tid-loading__logo {
+            opacity: 0;
+            transform: scale(1.5) rotate(180deg);
+            animation: none;
+        }
+
         /* Three.js canvas container */
         .tid-field-container {
             position: fixed;
             inset: 0;
             z-index: 1;
+        }
+
+        /* Big drop number overlay */
+        .tid-drop-number {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: rgba(0, 0, 0, 0.05);
+            pointer-events: none;
+            z-index: 1;
+            user-select: none;
+            transition: opacity 0.6s ease-out;
+            line-height: 0.85;
+        }
+
+        .tid-drop-number__label {
+            font-size: clamp(24px, 5vw, 48px);
+            font-weight: 400;
+            letter-spacing: 0.3em;
+        }
+
+        .tid-drop-number__value {
+            font-size: clamp(180px, 35vw, 420px);
+            font-weight: 300;
+            letter-spacing: -0.02em;
+        }
+
+        /* Hide drop number after field state */
+        .tid-drop[data-state="formation"] .tid-drop-number,
+        .tid-drop[data-state="reveal"] .tid-drop-number {
+            opacity: 0;
+        }
+
+        /* Custom cursor - MATERIALIZE label */
+        .tid-cursor {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: #fff;
+            background: #000;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 30px;
+            white-space: nowrap;
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.8);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+        }
+
+        .tid-cursor::before {
+            content: '';
+            position: absolute;
+            inset: -3px;
+            border-radius: 33px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+
+        .tid-cursor::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: -8px;
+            width: 4px;
+            height: 4px;
+            background: #000;
+            border-radius: 50%;
+            transform: translateY(-50%);
+            box-shadow: 0 0 0 2px #fff;
+        }
+
+        .tid-cursor.active {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+            animation: cursorPulse 2s ease-in-out infinite;
+        }
+
+        .tid-cursor.active::before {
+            opacity: 1;
+        }
+
+        @keyframes cursorPulse {
+            0%, 100% {
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+            }
+            50% {
+                box-shadow: 0 6px 30px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.15) inset;
+            }
+        }
+
+        /* Hide default cursor over field when custom cursor is active */
+        .tid-drop[data-state="field"] .tid-field-container {
+            cursor: none;
+        }
+
+        .tid-drop[data-state="field"] {
+            cursor: none;
+        }
+
+        /* Touch devices - show floating tap button */
+        @media (hover: none) and (pointer: coarse) {
+            .tid-cursor {
+                /* Override cursor-following behavior - make it fixed center-bottom */
+                position: fixed !important;
+                bottom: 140px !important;
+                left: 50% !important;
+                top: auto !important;
+                transform: translateX(-50%) !important;
+                opacity: 0;
+                pointer-events: none;
+            }
+
+            .tid-cursor.active {
+                opacity: 1;
+                transform: translateX(-50%) !important;
+                animation: floatPulse 2s ease-in-out infinite;
+            }
+
+            .tid-cursor::after {
+                display: none;
+            }
+
+            @keyframes floatPulse {
+                0%, 100% {
+                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+                    transform: translateX(-50%) translateY(0);
+                }
+                50% {
+                    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+                    transform: translateX(-50%) translateY(-5px);
+                }
+            }
+
+            .tid-drop[data-state="field"] .tid-field-container {
+                cursor: pointer;
+            }
+        }
+
+        /* Hide original button completely */
+        .tid-materialize-btn {
+            display: none !important;
+        }
+
+        /* Purchase tray - light theme */
+        .tid-purchase-tray {
+            background: rgba(255,255,255,0.95) !important;
+            border-top: 1px solid #e0e0e0 !important;
+            backdrop-filter: blur(10px);
+        }
+
+        .tid-purchase-tray__toggle {
+            color: #000 !important;
+        }
+
+        .tid-purchase-tray__price {
+            color: #666 !important;
+        }
+
+        .tid-purchase-tray__expand-icon {
+            border-color: #666 !important;
+        }
+
+        .tid-size-btn {
+            background: #fff !important;
+            border: 1px solid #ccc !important;
+            color: #000 !important;
+        }
+
+        .tid-size-btn:hover:not(:disabled) {
+            border-color: #000 !important;
+        }
+
+        .tid-size-btn[aria-checked="true"] {
+            background: #000 !important;
+            border-color: #000 !important;
+            color: #fff !important;
+        }
+
+        .tid-size-btn--sold-out {
+            color: #999 !important;
+            border-color: #e0e0e0 !important;
+        }
+
+        .tid-btn--primary {
+            background: #000 !important;
+            color: #fff !important;
+        }
+
+        .tid-btn--primary:hover:not(:disabled) {
+            background: #333 !important;
+        }
+
+        .tid-btn--primary:disabled {
+            background: #e0e0e0 !important;
+            color: #999 !important;
         }
 
         /* Product reveal layer */
@@ -43,6 +297,7 @@
             pointer-events: none;
             opacity: 0;
             transition: opacity 0.8s ease;
+            background: #fff;
         }
 
         .tid-drop[data-state="reveal"] .tid-product-reveal,
@@ -54,65 +309,90 @@
 
         .tid-product-image {
             position: relative;
-            max-width: 65%;
-            max-height: 70vh;
+            width: 100vw;
+            max-width: 2016px;
+            height: 100vh;
+            max-height: 2352px;
+            background: #fff;
+            border-radius: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
         }
 
         .tid-product-image img {
             display: block;
-            max-width: 100%;
-            max-height: 70vh;
+            max-width: 90%;
+            max-height: 90%;
             object-fit: contain;
         }
 
         /* Video container */
         .tid-product-video {
             position: absolute;
-            inset: 0;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
             opacity: 0;
+            pointer-events: none;
+            z-index: 10;
             transition: opacity 0.6s ease;
+            background: #fff;
         }
 
         .tid-product-video.active {
             opacity: 1;
+            pointer-events: auto;
         }
 
         .tid-product-video video {
-            max-width: 100%;
-            max-height: 100%;
+            max-width: 90%;
+            max-height: 90%;
             object-fit: contain;
         }
 
         /* View toggle */
         .tid-view-toggle {
             position: absolute;
-            bottom: 20px;
+            bottom: 100px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
             gap: 8px;
-            z-index: 5;
+            z-index: 20;
+        }
+
+        /* Mobile - move above images */
+        @media (max-width: 768px) {
+            .tid-view-toggle {
+                bottom: auto;
+                top: 20px;
+            }
         }
 
         .tid-view-toggle button {
-            padding: 8px 16px;
-            background: rgba(0,0,0,0.6);
-            border: 1px solid rgba(255,255,255,0.3);
-            color: #fff;
-            font-size: 10px;
-            letter-spacing: 0.15em;
+            padding: 12px 20px;
+            background: #fff;
+            border: 1px solid #ccc;
+            color: #333;
+            font-size: 12px;
+            letter-spacing: 0.1em;
             text-transform: uppercase;
             cursor: pointer;
             transition: all 0.2s;
+            border-radius: 4px;
         }
 
         .tid-view-toggle button:hover,
         .tid-view-toggle button.active {
-            background: rgba(255,255,255,0.9);
-            color: #000;
+            background: #000;
+            border-color: #000;
+            color: #fff;
         }
     </style>
 </head>
@@ -126,30 +406,43 @@
 
     <!-- Loading State (S0) -->
     <div class="tid-loading" aria-live="polite">
-        <div class="tid-loading__wordmark">TRUE IMPULSE</div>
-        <div class="tid-loading__indicator" role="status">
-            <span class="screen-reader-text">Loading experience...</span>
+        <div class="tid-loading__wordmark">IMPULSE CLOTHING</div>
+        <div class="tid-loading__logo" role="status" aria-label="Loading animation">
+            <svg width="120" height="125" viewBox="0 0 435 453" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path opacity="0.1" d="M322.21 301.407C333.659 301.404 340.814 289.011 335.093 279.094L186.96 22.33C181.235 12.4074 166.915 12.4051 161.187 22.3259L12.8898 279.185C7.16206 289.106 14.3241 301.506 25.7797 301.502L322.21 301.407Z" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="3.47626" stroke-linecap="round" stroke-linejoin="round"/>
+                <path opacity="0.25" d="M260.773 296.424C271.973 298.801 281.548 288.167 278.013 277.277L213.357 78.0664C209.82 67.1704 195.813 64.1908 188.148 72.7039L47.9275 228.435C40.2623 236.948 44.6896 250.567 55.8956 252.945L260.773 296.424Z" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="3.47626" stroke-linecap="round" stroke-linejoin="round"/>
+                <path opacity="0.4" d="M225.237 282.031C235.977 285.907 246.9 276.742 244.947 265.492L218.992 115.931C217.03 104.629 203.556 99.7043 194.769 107.078L77.9431 205.106C69.1556 212.48 71.6658 226.604 82.4558 230.498L225.237 282.031Z" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="3.47626" stroke-linecap="round" stroke-linejoin="round"/>
+                <path opacity="0.6" d="M199.489 261.836C207.848 266.313 217.91 260.025 217.55 250.55L213.679 148.514C213.321 139.088 202.907 133.571 194.908 138.569L108.767 192.396C100.768 197.395 101.161 209.173 109.476 213.626L199.489 261.836Z" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="3.47626" stroke-linecap="round" stroke-linejoin="round"/>
+                <path opacity="0.8" d="M178.808 235.496C185.757 240.541 195.561 236.176 196.462 227.636L201.53 179.56C202.431 171.016 193.743 164.702 185.894 168.196L141.707 187.87C133.858 191.364 132.737 202.046 139.689 207.094L178.808 235.496Z" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="3.47626" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M173.642 212.406C175.9 214.514 179.59 213.455 180.387 210.471L184.321 195.754C185.142 192.681 182.297 189.888 179.24 190.764L164.172 195.085C161.115 195.962 160.183 199.838 162.507 202.009L173.642 212.406Z" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="3.47626" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
         </div>
+        <span class="screen-reader-text">Loading experience...</span>
     </div>
 
     <!-- Three.js Canvas Container (S1) -->
     <div id="tid-field-container" class="tid-field-container" tabindex="0" aria-label="Interactive procedural surface - tap or drag to create waves">
+        <!-- Drop number overlay -->
+        <div class="tid-drop-number" aria-hidden="true">
+            <span class="tid-drop-number__label">DROP</span>
+            <span class="tid-drop-number__value">001</span>
+        </div>
     </div>
 
     <!-- Product Reveal Layer (S3) -->
     <div class="tid-product-reveal" aria-hidden="true">
         <div class="tid-product-image tid-product-image--front" id="tid-product-container">
-            <!-- Front view - placeholder, replace with your image path -->
+            <!-- Front view -->
             <img
                 id="tid-product-front"
-                src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 450'%3E%3Crect fill='%231a1a1a' width='400' height='450'/%3E%3Ctext x='200' y='225' text-anchor='middle' fill='%23666' font-family='system-ui' font-size='14'%3EProduct Front%3C/text%3E%3C/svg%3E"
+                src="assets/img/product-front.png"
                 alt="True Impulse Drop 01 - Front view"
                 data-view="front"
             />
             <!-- Back view -->
             <img
                 id="tid-product-back"
-                src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 450'%3E%3Crect fill='%231a1a1a' width='400' height='450'/%3E%3Ctext x='200' y='225' text-anchor='middle' fill='%23666' font-family='system-ui' font-size='14'%3EProduct Back%3C/text%3E%3C/svg%3E"
+                src="assets/img/product-back.png"
                 alt="True Impulse Drop 01 - Back view"
                 data-view="back"
                 style="display: none;"
@@ -163,7 +456,8 @@
                     muted
                     loop
                     playsinline
-                    preload="metadata"
+                    autoplay
+                    preload="auto"
                 ></video>
             </div>
 
@@ -176,15 +470,17 @@
         </div>
     </div>
 
-    <!-- Materialize CTA -->
+    <!-- Custom cursor / tap prompt -->
+    <div id="tid-cursor" class="tid-cursor">TAP TO MATERIALIZE</div>
+
+    <!-- Materialize CTA (hidden, for accessibility fallback) -->
     <button
         type="button"
         id="tid-materialize-btn"
-        class="tid-materialize-btn"
+        class="tid-materialize-btn screen-reader-text"
         aria-describedby="tid-materialize-desc"
     >
         <span class="tid-materialize-btn__text">MATERIALIZE</span>
-        <span class="tid-materialize-btn__icon" aria-hidden="true"></span>
     </button>
     <span id="tid-materialize-desc" class="screen-reader-text">
         Activate to reveal the garment from procedural geometry
@@ -254,6 +550,16 @@
     };
 </script>
 
+<!-- Error handler -->
+<script>
+window.onerror = function(msg, url, line, col, error) {
+    console.error('SCRIPT ERROR:', msg, 'at', url, 'line', line);
+    return false;
+};
+</script>
+
+<!-- Loading logo uses CSS animation - no JS needed -->
+
 <!-- Three.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
@@ -265,8 +571,18 @@
 
 <!-- Main Controller -->
 <script>
+console.log('=== TRUE IMPULSE DROP SCRIPT LOADED ===');
+console.log('THREE available:', typeof THREE !== 'undefined');
+console.log('gsap available:', typeof gsap !== 'undefined');
+
 (function() {
     'use strict';
+
+    // Debug logging
+    const DEBUG = true;
+    const log = (...args) => {
+        console.log('[TID]', ...args);
+    };
 
     const STATES = {
         LOADING: 'loading',
@@ -279,6 +595,7 @@
 
     class DropController {
         constructor() {
+            log('DropController initializing...');
             this.state = STATES.LOADING;
             this.proceduralField = null;
             this.selectedVariation = null;
@@ -290,6 +607,7 @@
         }
 
         init() {
+            log('init() called');
             this.cacheElements();
             this.bindEvents();
             this.loadExperience();
@@ -300,6 +618,7 @@
                 drop: document.getElementById('tid-drop'),
                 fieldContainer: document.getElementById('tid-field-container'),
                 materializeBtn: document.getElementById('tid-materialize-btn'),
+                cursor: document.getElementById('tid-cursor'),
                 productReveal: document.querySelector('.tid-product-reveal'),
                 productContainer: document.getElementById('tid-product-container'),
                 productFront: document.getElementById('tid-product-front'),
@@ -313,12 +632,70 @@
                 addToCartBtn: document.getElementById('tid-add-to-cart'),
                 cartError: document.getElementById('tid-cart-error')
             };
+            log('Elements cached:', {
+                drop: !!this.elements.drop,
+                fieldContainer: !!this.elements.fieldContainer,
+                materializeBtn: !!this.elements.materializeBtn,
+                productReveal: !!this.elements.productReveal,
+                productContainer: !!this.elements.productContainer,
+                productFront: !!this.elements.productFront,
+                productBack: !!this.elements.productBack,
+                productVideo: !!this.elements.productVideo,
+                rotationVideo: !!this.elements.rotationVideo,
+                viewToggle: !!this.elements.viewToggle
+            });
         }
 
         bindEvents() {
-            // Materialize button
+            log('bindEvents() called');
+
+            // Custom cursor tracking
+            if (this.elements.cursor) {
+                this.cursorTarget = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+                this.cursorPos = { x: this.cursorTarget.x, y: this.cursorTarget.y };
+
+                window.addEventListener('mousemove', (e) => {
+                    this.cursorTarget.x = e.clientX;
+                    this.cursorTarget.y = e.clientY;
+                });
+
+                // Smooth cursor animation
+                const animateCursor = () => {
+                    // Smooth interpolation
+                    this.cursorPos.x += (this.cursorTarget.x - this.cursorPos.x) * 0.15;
+                    this.cursorPos.y += (this.cursorTarget.y - this.cursorPos.y) * 0.15;
+
+                    this.elements.cursor.style.left = this.cursorPos.x + 'px';
+                    this.elements.cursor.style.top = this.cursorPos.y + 'px';
+
+                    // Show cursor only in FIELD state
+                    if (this.state === STATES.FIELD) {
+                        this.elements.cursor.classList.add('active');
+                    } else {
+                        this.elements.cursor.classList.remove('active');
+                    }
+
+                    requestAnimationFrame(animateCursor);
+                };
+                animateCursor();
+            }
+
+            // Click on field to materialize
+            if (this.elements.fieldContainer) {
+                this.elements.fieldContainer.addEventListener('click', () => {
+                    if (this.state === STATES.FIELD) {
+                        log('Field clicked - materializing');
+                        this.materialize();
+                    }
+                });
+            }
+
+            // Materialize button (accessibility fallback)
             if (this.elements.materializeBtn) {
-                this.elements.materializeBtn.addEventListener('click', () => this.materialize());
+                this.elements.materializeBtn.addEventListener('click', () => {
+                    log('Materialize button clicked');
+                    this.materialize();
+                });
             }
 
             // Purchase tray toggle
@@ -338,9 +715,16 @@
 
             // View toggle buttons
             if (this.elements.viewToggle) {
-                this.elements.viewToggle.querySelectorAll('button').forEach(btn => {
-                    btn.addEventListener('click', () => this.switchView(btn.dataset.view));
+                const buttons = this.elements.viewToggle.querySelectorAll('button');
+                log('View toggle buttons found:', buttons.length);
+                buttons.forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        log('View toggle clicked:', btn.dataset.view);
+                        this.switchView(btn.dataset.view);
+                    });
                 });
+            } else {
+                log('WARNING: viewToggle element not found!');
             }
 
             // Product image interaction
@@ -354,17 +738,29 @@
         }
 
         async loadExperience() {
+            log('loadExperience() called');
+            log('ProceduralField available:', !!window.ProceduralField);
+
             try {
                 // Initialize procedural field
                 if (this.elements.fieldContainer && window.ProceduralField) {
+                    log('Creating ProceduralField...');
                     this.proceduralField = new window.ProceduralField(this.elements.fieldContainer);
                     this.proceduralField.start();
+                    log('ProceduralField started');
+                } else {
+                    log('WARNING: Cannot create ProceduralField', {
+                        fieldContainer: !!this.elements.fieldContainer,
+                        ProceduralField: !!window.ProceduralField
+                    });
                 }
 
-                // Brief loading delay
-                await this.delay(800);
+                // Brief loading delay for pyramid animation
+                await this.delay(1500);
 
+                // Transition: set state first (triggers CSS fade)
                 this.setState(STATES.FIELD);
+                log('State set to FIELD');
 
             } catch (error) {
                 console.error('Failed to initialize:', error);
@@ -373,6 +769,7 @@
         }
 
         setState(newState) {
+            log('setState:', this.state, '->', newState);
             this.state = newState;
             if (this.elements.drop) {
                 this.elements.drop.dataset.state = newState;
@@ -380,25 +777,42 @@
         }
 
         materialize() {
-            if (this.state !== STATES.FIELD) return;
+            log('materialize() called, current state:', this.state);
+            if (this.state !== STATES.FIELD) {
+                log('Cannot materialize - not in FIELD state');
+                return;
+            }
 
             this.setState(STATES.FORMATION);
 
             if (this.proceduralField) {
+                log('Starting procedural reveal...');
                 this.proceduralField.startReveal(() => {
+                    log('Procedural reveal complete callback');
                     this.onRevealComplete();
                 });
             } else {
+                log('No procedural field, using timeout fallback');
                 setTimeout(() => this.onRevealComplete(), 300);
             }
         }
 
         onRevealComplete() {
+            log('onRevealComplete() called');
             this.setState(STATES.REVEAL);
+
+            // Remove aria-hidden from product reveal
+            if (this.elements.productReveal) {
+                this.elements.productReveal.setAttribute('aria-hidden', 'false');
+                log('Set productReveal aria-hidden to false');
+            }
 
             // Show view toggle
             if (this.elements.viewToggle) {
+                log('Showing view toggle');
                 this.elements.viewToggle.style.display = 'flex';
+            } else {
+                log('WARNING: viewToggle not available in onRevealComplete');
             }
 
             // Expand purchase tray
@@ -416,15 +830,38 @@
         }
 
         switchView(view) {
+            log('switchView() called with:', view);
+            log('Elements state:', {
+                viewToggle: !!this.elements.viewToggle,
+                productFront: !!this.elements.productFront,
+                productBack: !!this.elements.productBack,
+                productVideo: !!this.elements.productVideo,
+                rotationVideo: !!this.elements.rotationVideo
+            });
+
+            if (!this.elements.viewToggle) {
+                log('ERROR: viewToggle not found');
+                return;
+            }
+
             // Update toggle buttons
             this.elements.viewToggle.querySelectorAll('button').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.view === view);
             });
 
             // Hide all views
-            this.elements.productFront.style.display = 'none';
-            this.elements.productBack.style.display = 'none';
-            this.elements.productVideo.classList.remove('active');
+            if (this.elements.productFront) {
+                this.elements.productFront.style.display = 'none';
+                log('Hid productFront');
+            }
+            if (this.elements.productBack) {
+                this.elements.productBack.style.display = 'none';
+                log('Hid productBack');
+            }
+            if (this.elements.productVideo) {
+                this.elements.productVideo.classList.remove('active');
+                log('Removed active from productVideo');
+            }
 
             // Pause video
             if (this.elements.rotationVideo) {
@@ -434,15 +871,27 @@
             // Show selected view
             switch (view) {
                 case 'front':
-                    this.elements.productFront.style.display = 'block';
+                    if (this.elements.productFront) {
+                        this.elements.productFront.style.display = 'block';
+                        log('Showing front view');
+                    }
                     break;
                 case 'back':
-                    this.elements.productBack.style.display = 'block';
+                    if (this.elements.productBack) {
+                        this.elements.productBack.style.display = 'block';
+                        log('Showing back view');
+                    }
                     break;
                 case 'video':
-                    this.elements.productVideo.classList.add('active');
+                    if (this.elements.productVideo) {
+                        this.elements.productVideo.classList.add('active');
+                        log('Showing video view');
+                    }
                     if (this.elements.rotationVideo) {
-                        this.elements.rotationVideo.play().catch(() => {});
+                        log('Attempting to play video, src:', this.elements.rotationVideo.src);
+                        this.elements.rotationVideo.play()
+                            .then(() => log('Video playing'))
+                            .catch(err => log('Video play error:', err.message));
                     }
                     break;
             }
@@ -462,7 +911,7 @@
                 width: 0;
                 height: 0;
                 border-radius: 50%;
-                background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+                background: radial-gradient(circle, rgba(0,0,0,0.1) 0%, transparent 70%);
                 transform: translate(-50%, -50%);
                 pointer-events: none;
             `;
@@ -541,11 +990,18 @@
     }
 
     // Initialize
+    console.log('[TID] Document readyState:', document.readyState);
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => new DropController());
+        console.log('[TID] Waiting for DOMContentLoaded...');
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('[TID] DOMContentLoaded fired, creating DropController');
+            window.dropController = new DropController();
+        });
     } else {
-        new DropController();
+        console.log('[TID] DOM already ready, creating DropController now');
+        window.dropController = new DropController();
     }
+    console.log('[TID] Script initialization complete');
 })();
 </script>
 
