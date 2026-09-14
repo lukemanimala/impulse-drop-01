@@ -29,6 +29,7 @@ uploads/
 
 # Large media files (add your own)
 *.mp4
+!assets/video/product-rotation.mp4
 *.mov
 *.avi
 *.webm

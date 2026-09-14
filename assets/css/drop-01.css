@@ -863,6 +863,10 @@
         padding: 20px 32px;
     }
 
+    .tid-color-selector {
+        padding: 0 32px;
+    }
+
     .tid-size-selector {
         padding: 0 32px 20px;
     }
@@ -948,12 +952,12 @@
 
 .tid-color-selector {
     border: none;
-    padding: 0;
-    margin: 0 0 24px 0;
+    padding: 0 20px;
+    margin: 0 0 16px 0;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 12px;
+    align-items: flex-start;
+    gap: 8px;
 }
 
 .tid-color-selector__label {
@@ -969,8 +973,8 @@
 
 .tid-color-selector__options {
     display: flex;
-    gap: 16px;
-    justify-content: center;
+    gap: 12px;
+    justify-content: flex-start;
     align-items: center;
 }
 
