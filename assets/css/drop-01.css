@@ -969,6 +969,7 @@
     text-transform: uppercase;
     color: var(--tid-dark-gray);
     margin: 0;
+    margin-left: 4px;
     padding: 0;
 }
 
@@ -977,6 +978,7 @@
     gap: 12px;
     justify-content: flex-start;
     align-items: center;
+    margin-left: 4px;
 }
 
 .tid-color-btn {
