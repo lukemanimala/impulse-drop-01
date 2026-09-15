@@ -977,7 +977,6 @@
     gap: 12px;
     justify-content: flex-start;
     align-items: center;
-    margin-left: -2px; /* Align swatch edge with size button edge */
 }
 
 .tid-color-btn {
@@ -999,8 +998,7 @@
 }
 
 .tid-color-btn[aria-checked="true"] {
-    border: 2px solid var(--tid-black);
-    box-shadow: 0 0 0 3px var(--tid-white), 0 0 0 5px var(--tid-black);
+    border: 3px solid var(--tid-black);
 }
 
 .tid-color-btn:focus-visible {
