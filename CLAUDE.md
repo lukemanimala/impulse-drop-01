@@ -7,9 +7,14 @@
 - Production: https://impulse.clothing
 
 ## WP Pusher Webhooks (GitHub → auto-deploy)
-Staging webhook (already configured in GitHub):
+Staging (main branch):
 ```
 https://wordpress-1670281-6667531.cloudwaysapps.com/?wppusher-hook&token=34468d394c204e64ef9567ffac2d9b914f4d2aee8c8df5d82ca95a390028229f&package=aW1wdWxzZS1kcm9wLTAxL3RydWUtaW1wdWxzZS1kcm9wLnBocA%3D%3D
+```
+
+Production (production branch):
+```
+https://impulse.clothing/?wppusher-hook&token=34468d394c204e64ef9567ffac2d9b914f4d2aee8c8df5d82ca95a390028229f&package=aW1wdWxzZS1kcm9wLTAxL3RydWUtaW1wdWxzZS1kcm9wLnBocA%3D%3D
 ```
 
 ## Staging API Access (Direct)
