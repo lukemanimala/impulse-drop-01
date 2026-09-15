@@ -770,7 +770,7 @@
     border-top-color: var(--tid-white);
     border-radius: 50%;
     animation: tid-spin 0.8s linear infinite;
-    margin-left: 8px;
+    margin-left: 10px;
 }
 
 .tid-btn.loading .tid-btn__text {
@@ -969,7 +969,7 @@
     text-transform: uppercase;
     color: var(--tid-dark-gray);
     margin: 0;
-    margin-left: 8px;
+    margin-left: 10px;
     padding: 0;
 }
 
@@ -978,7 +978,7 @@
     gap: 12px;
     justify-content: flex-start;
     align-items: center;
-    margin-left: 8px;
+    margin-left: 10px;
 }
 
 .tid-color-btn {
