@@ -16,6 +16,7 @@
     --tid-dark-gray: #4a4a4a;
     --tid-near-black: #1a1a1a;
     --tid-black: #000000;
+    --tid-impulse-red: #c41e3a;
 
     --tid-font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
@@ -997,7 +998,8 @@
 }
 
 .tid-color-btn[aria-checked="true"] {
-    border: 2px solid var(--tid-black);
+    border: 2px solid var(--tid-impulse-red);
+    box-shadow: 0 0 0 2px rgba(196, 30, 58, 0.2);
 }
 
 .tid-color-btn:focus-visible {
