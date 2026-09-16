@@ -368,12 +368,13 @@
     opacity: 0;
 }
 
-/* Hide brand mark on mobile during reveal (conflicts with view toggle) */
+/* Hide brand mark on mobile during reveal (conflicts with tabs/view toggle) */
 @media (max-width: 768px) {
     .tid-drop[data-state="reveal"] .tid-brand-mark--global,
     .tid-drop[data-state="detail"] .tid-brand-mark--global,
     .tid-drop[data-state="purchase"] .tid-brand-mark--global {
         opacity: 0;
+        pointer-events: none;
     }
 }
 
@@ -542,11 +543,18 @@
     z-index: 20;
 }
 
-/* Mobile - move above images */
+/* Mobile - move above images, below product tabs */
 @media (max-width: 768px) {
     .tid-view-toggle {
         bottom: auto;
-        top: 20px;
+        top: 70px;
+    }
+}
+
+/* Smaller mobile - more spacing */
+@media (max-width: 639px) {
+    .tid-view-toggle {
+        top: 56px;
     }
 }
 
