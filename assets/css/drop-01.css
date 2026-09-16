@@ -611,7 +611,7 @@
     width: 100%;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    gap: 12px;
     padding: 16px 20px;
     background: transparent;
     border: none;
@@ -636,6 +636,7 @@
 .tid-purchase-tray__expand-icon {
     width: 12px;
     height: 12px;
+    margin-left: auto;
     border-right: 1px solid var(--tid-mid-gray);
     border-bottom: 1px solid var(--tid-mid-gray);
     transform: rotate(-135deg);
