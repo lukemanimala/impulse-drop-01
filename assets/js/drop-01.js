@@ -590,11 +590,7 @@
                 return;
             }
 
-            this.currentProductIndex = index;
-            this.selectedVariation = null;
-            this.selectedColor = null;
-
-            // Update tab states
+            // Update tab states immediately
             if (this.elements.productTabs) {
                 this.elements.productTabs.querySelectorAll('button').forEach((btn, i) => {
                     btn.setAttribute('aria-selected', i === index ? 'true' : 'false');
@@ -602,11 +598,40 @@
                 });
             }
 
-            // Re-render product UI
-            this.renderCurrentProduct();
+            // Fade out, update, fade in
+            const productImage = this.elements.productContainer;
+            const trayContent = this.elements.trayContent;
 
-            // Reset add to cart button
-            this.resetAddToCartButton();
+            if (window.gsap && productImage) {
+                // Fade out product image
+                gsap.to(productImage, {
+                    opacity: 0,
+                    duration: 0.25,
+                    ease: 'power2.in',
+                    onComplete: () => {
+                        // Update state and render
+                        this.currentProductIndex = index;
+                        this.selectedVariation = null;
+                        this.selectedColor = null;
+                        this.renderCurrentProduct();
+                        this.resetAddToCartButton();
+
+                        // Fade back in
+                        gsap.to(productImage, {
+                            opacity: 1,
+                            duration: 0.4,
+                            ease: 'power2.out'
+                        });
+                    }
+                });
+            } else {
+                // No GSAP - instant switch
+                this.currentProductIndex = index;
+                this.selectedVariation = null;
+                this.selectedColor = null;
+                this.renderCurrentProduct();
+                this.resetAddToCartButton();
+            }
         }
 
         /**
