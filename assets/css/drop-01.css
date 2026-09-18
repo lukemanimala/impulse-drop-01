@@ -559,23 +559,28 @@
 }
 
 .tid-view-toggle button {
-    padding: 12px 20px;
+    padding: 8px 14px;
     background: var(--tid-white);
     border: 1px solid var(--tid-light-gray);
-    color: var(--tid-dark-gray);
+    color: var(--tid-mid-gray);
     font-family: var(--tid-font-sans);
-    font-size: 12px;
-    letter-spacing: 0.1em;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     cursor: pointer;
     transition: all 0.2s;
     border-radius: 4px;
 }
 
-.tid-view-toggle button:hover,
+.tid-view-toggle button:hover {
+    border-color: var(--tid-dark-gray);
+    color: var(--tid-dark-gray);
+}
+
 .tid-view-toggle button.active {
-    background: var(--tid-black);
-    border-color: var(--tid-black);
+    background: var(--tid-near-black);
+    border-color: var(--tid-near-black);
     color: var(--tid-white);
 }
 
@@ -622,10 +627,11 @@
 }
 
 .tid-purchase-tray__product-name {
-    font-size: 0.75rem;
-    font-weight: 500;
-    letter-spacing: 0.15em;
+    font-size: 0.65rem;
+    font-weight: 400;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
+    color: var(--tid-dark-gray);
 }
 
 .tid-purchase-tray__price {
@@ -930,25 +936,26 @@
     background: transparent;
     border: none;
     font-family: var(--tid-font-sans);
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.15em;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--tid-mid-gray);
     cursor: pointer;
-    padding: 8px 0;
-    border-bottom: 1px solid transparent;
-    transition: color var(--tid-transition-fast), border-color var(--tid-transition-fast);
+    padding: 10px 16px;
+    border-radius: 20px;
+    transition: all var(--tid-transition-fast);
 }
 
 .tid-product-tabs button:hover {
     color: var(--tid-dark-gray);
+    background: rgba(0, 0, 0, 0.04);
 }
 
 .tid-product-tabs button[aria-selected="true"],
 .tid-product-tabs button.active {
-    color: var(--tid-black);
-    border-bottom-color: var(--tid-black);
+    color: var(--tid-white);
+    background: var(--tid-black);
 }
 
 .tid-product-tabs button:focus-visible {
@@ -988,7 +995,7 @@
     justify-content: flex-start;
     align-items: center;
     margin-left: 10px;
-    margin-top: 12px;
+    margin-top: 8px;
 }
 
 .tid-color-btn {
@@ -1022,12 +1029,13 @@
 @media (max-width: 639px) {
     .tid-product-tabs {
         top: 16px;
-        gap: 16px;
+        gap: 8px;
     }
 
     .tid-product-tabs button {
-        font-size: 10px;
-        letter-spacing: 0.12em;
+        font-size: 11px;
+        padding: 8px 12px;
+        letter-spacing: 0.1em;
     }
 
     .tid-color-btn {
