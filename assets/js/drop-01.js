@@ -371,34 +371,58 @@
                 btn.classList.toggle('active', btn.dataset.view === view);
             });
 
-            // Hide all views
-            if (this.elements.productFront) this.elements.productFront.style.display = 'none';
-            if (this.elements.productWorn) this.elements.productWorn.style.display = 'none';
-            if (this.elements.productVideo) this.elements.productVideo.classList.remove('active');
-            if (this.elements.productBack) this.elements.productBack.style.display = 'none';
+            const productContainer = this.elements.productContainer;
 
-            // Pause video
-            if (this.elements.rotationVideo) {
-                this.elements.rotationVideo.pause();
-            }
+            // Helper to perform the actual view switch
+            const performSwitch = () => {
+                // Hide all views
+                if (this.elements.productFront) this.elements.productFront.style.display = 'none';
+                if (this.elements.productWorn) this.elements.productWorn.style.display = 'none';
+                if (this.elements.productVideo) this.elements.productVideo.classList.remove('active');
+                if (this.elements.productBack) this.elements.productBack.style.display = 'none';
 
-            // Show selected view
-            switch (view) {
-                case 'front':
-                    if (this.elements.productFront) this.elements.productFront.style.display = 'block';
-                    break;
-                case 'back':
-                    if (this.elements.productBack) this.elements.productBack.style.display = 'block';
-                    break;
-                case 'worn':
-                    if (this.elements.productWorn) this.elements.productWorn.style.display = 'flex';
-                    break;
-                case 'video':
-                    if (this.elements.productVideo) this.elements.productVideo.classList.add('active');
-                    if (this.elements.rotationVideo) {
-                        this.elements.rotationVideo.play().catch(() => {});
+                // Pause video
+                if (this.elements.rotationVideo) {
+                    this.elements.rotationVideo.pause();
+                }
+
+                // Show selected view
+                switch (view) {
+                    case 'front':
+                        if (this.elements.productFront) this.elements.productFront.style.display = 'block';
+                        break;
+                    case 'back':
+                        if (this.elements.productBack) this.elements.productBack.style.display = 'block';
+                        break;
+                    case 'worn':
+                        if (this.elements.productWorn) this.elements.productWorn.style.display = 'flex';
+                        break;
+                    case 'video':
+                        if (this.elements.productVideo) this.elements.productVideo.classList.add('active');
+                        if (this.elements.rotationVideo) {
+                            this.elements.rotationVideo.play().catch(() => {});
+                        }
+                        break;
+                }
+            };
+
+            // Animate with GSAP if available
+            if (window.gsap && productContainer) {
+                gsap.to(productContainer, {
+                    opacity: 0,
+                    duration: 0.2,
+                    ease: 'power2.in',
+                    onComplete: () => {
+                        performSwitch();
+                        gsap.to(productContainer, {
+                            opacity: 1,
+                            duration: 0.3,
+                            ease: 'power2.out'
+                        });
                     }
-                    break;
+                });
+            } else {
+                performSwitch();
             }
         }
 
