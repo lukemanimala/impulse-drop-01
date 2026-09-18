@@ -11,7 +11,7 @@
 
 defined('ABSPATH') || exit;
 
-define('TID_VERSION', '1.3.6');
+define('TID_VERSION', '1.3.7');
 define('TID_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('TID_PLUGIN_URL', plugin_dir_url(__FILE__));
 
