@@ -1,0 +1,36 @@
+<svg width="1080" height="1350" viewBox="0 0 1080 1350" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .mono { font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace; }
+      .label { font-size: 14px; font-weight: 400; fill: #888888; letter-spacing: 0.15em; }
+      .border { stroke: #444444; stroke-width: 2; fill: none; }
+      .divider { stroke: #333333; stroke-width: 2; }
+    </style>
+  </defs>
+
+  <!-- Top-left triangle (Tank) -->
+  <polygon points="40,40 1040,40 40,1310" fill="#1a1a1a" stroke="none"/>
+
+  <!-- Bottom-right triangle (Hoodie) -->
+  <polygon points="1040,40 1040,1310 40,1310" fill="#2a2a2a" stroke="none"/>
+
+  <!-- Diagonal divider line (top-left to bottom-right) -->
+  <line x1="40" y1="40" x2="1040" y2="1310" class="divider"/>
+
+  <!-- Outer border -->
+  <rect x="40" y="40" width="1000" height="1270" class="border" rx="0"/>
+
+  <!-- Product labels -->
+  <rect x="60" y="60" width="180" height="30" fill="#0a0a0a" fill-opacity="0.85"/>
+  <text x="70" y="80" class="mono label">01 CUTOFF TANK</text>
+
+  <rect x="840" y="1240" width="180" height="30" fill="#0a0a0a" fill-opacity="0.85"/>
+  <text x="850" y="1260" class="mono label">02 HOODIE</text>
+
+  <!-- Corner accents -->
+  <path d="M40 60 L40 40 L60 40" stroke="#ffffff" stroke-width="2" fill="none"/>
+  <path d="M1020 40 L1040 40 L1040 60" stroke="#ffffff" stroke-width="2" fill="none"/>
+  <path d="M1040 1290 L1040 1310 L1020 1310" stroke="#ffffff" stroke-width="2" fill="none"/>
+  <path d="M60 1310 L40 1310 L40 1290" stroke="#ffffff" stroke-width="2" fill="none"/>
+
+</svg>

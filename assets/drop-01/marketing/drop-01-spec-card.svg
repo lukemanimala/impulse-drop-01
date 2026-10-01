@@ -1,0 +1,118 @@
+<svg width="1080" height="1350" viewBox="0 0 1080 1350" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&amp;display=swap');
+      .mono { font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace; }
+      .header { font-size: 24px; font-weight: 700; fill: #ffffff; letter-spacing: 0.15em; }
+      .subheader { font-size: 18px; font-weight: 400; fill: #888888; letter-spacing: 0.1em; }
+      .section-title { font-size: 22px; font-weight: 700; fill: #ffffff; letter-spacing: 0.12em; }
+      .spec-label { font-size: 16px; font-weight: 400; fill: #666666; letter-spacing: 0.08em; }
+      .spec-value { font-size: 16px; font-weight: 400; fill: #cccccc; letter-spacing: 0.02em; }
+      .price { font-size: 20px; font-weight: 700; fill: #ffffff; letter-spacing: 0.05em; }
+      .footer { font-size: 14px; font-weight: 400; fill: #555555; letter-spacing: 0.1em; }
+      .accent { fill: #ffffff; }
+      .divider { stroke: #333333; stroke-width: 1; }
+      .border { stroke: #444444; stroke-width: 2; fill: none; }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1080" height="1350" fill="#0a0a0a"/>
+
+  <!-- Outer border -->
+  <rect x="40" y="40" width="1000" height="1270" class="border" rx="0"/>
+
+  <!-- Header section -->
+  <line x1="40" y1="140" x2="1040" y2="140" class="divider"/>
+
+  <text x="80" y="95" class="mono header">IMPULSE CLOTHING</text>
+  <text x="460" y="95" class="mono subheader">//</text>
+  <text x="495" y="95" class="mono subheader">DROP 01 SPECIFICATION</text>
+
+  <!-- Capsule title -->
+  <text x="80" y="200" class="mono section-title" fill="#888888">CAPSULE 01:</text>
+  <text x="280" y="200" class="mono section-title">DUAL-STATE LAYER SYSTEM</text>
+
+  <line x1="80" y1="230" x2="1000" y2="230" class="divider"/>
+
+  <!-- Product 01: Tank -->
+  <text x="80" y="295" class="mono section-title">01 / HEAVYWEIGHT CUTOFF TANK</text>
+
+  <g class="mono spec-label">
+    <text x="80" y="350">SILHOUETTE</text>
+    <text x="80" y="390">TEXTILE</text>
+    <text x="80" y="430">WEIGHT</text>
+    <text x="80" y="470">GRAPHIC</text>
+    <text x="80" y="510">FINISH</text>
+    <text x="80" y="550">UTILITY</text>
+  </g>
+
+  <g class="mono spec-value">
+    <text x="280" y="350">Relaxed boxy fit, dropped armholes, raw rolled hem</text>
+    <text x="280" y="390">87% Cotton / 13% Polyester heavy jersey</text>
+    <text x="280" y="430">340 GSM (10.0 oz)</text>
+    <text x="280" y="470">Vertical IMPULSE axis + logarithmic vortex wireframe</text>
+    <text x="280" y="510">Vintage wash, raw edge detailing</text>
+    <text x="280" y="550">Standalone kinetic form or base layer</text>
+  </g>
+
+  <line x1="80" y1="590" x2="1000" y2="590" class="divider"/>
+
+  <!-- Product 02: Hoodie -->
+  <text x="80" y="655" class="mono section-title">02 / SUNFADED HEAVYWEIGHT HOODIE</text>
+
+  <g class="mono spec-label">
+    <text x="80" y="710">SILHOUETTE</text>
+    <text x="80" y="750">TEXTILE</text>
+    <text x="80" y="790">WEIGHT</text>
+    <text x="80" y="830">FRONT</text>
+    <text x="80" y="870">BACK</text>
+    <text x="80" y="910">PROCESS</text>
+    <text x="80" y="950">TREATMENT</text>
+  </g>
+
+  <g class="mono spec-value">
+    <text x="280" y="710">Boxy structured cut, exaggerated drop shoulders</text>
+    <text x="280" y="750">100% Heavyweight cotton fleece</text>
+    <text x="280" y="790">400 GSM (11.8 oz)</text>
+    <text x="280" y="830">IMPULSE vortex wireframe + spec markings</text>
+    <text x="280" y="870">ESCAPE VELOCITY // Celestial trajectory schematic</text>
+    <text x="280" y="910">High-density discharge screen print</text>
+    <text x="280" y="950">Hand-applied acid wash + individual pigment dye</text>
+  </g>
+
+  <line x1="80" y1="1000" x2="1000" y2="1000" class="divider"/>
+
+  <!-- Colorways -->
+  <text x="80" y="1060" class="mono section-title">COLORWAYS</text>
+
+  <g class="mono spec-label">
+    <text x="80" y="1110">01 TANK</text>
+    <text x="80" y="1150">02 HOODIE</text>
+  </g>
+
+  <g class="mono spec-value">
+    <text x="280" y="1110">Washed Charcoal Black</text>
+    <text x="280" y="1150">Sunfaded Black / Sunfaded Forest Green</text>
+  </g>
+
+  <!-- Color swatches -->
+  <rect x="680" y="1095" width="24" height="24" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+
+  <rect x="680" y="1135" width="24" height="24" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+  <rect x="714" y="1135" width="24" height="24" fill="#2d4a3e" stroke="#333" stroke-width="1"/>
+
+  <line x1="80" y1="1190" x2="1000" y2="1190" class="divider"/>
+
+  <!-- Footer -->
+  <text x="80" y="1240" class="mono footer">EDITION: LIMITED FIRST PRODUCTION RUN</text>
+  <text x="80" y="1270" class="mono footer">ACCESS: IMPULSE.CLOTHING</text>
+  <text x="700" y="1270" class="mono footer">BATCH 01 // 2026</text>
+
+  <!-- Corner accents -->
+  <path d="M40 60 L40 40 L60 40" stroke="#ffffff" stroke-width="2" fill="none"/>
+  <path d="M1020 40 L1040 40 L1040 60" stroke="#ffffff" stroke-width="2" fill="none"/>
+  <path d="M1040 1290 L1040 1310 L1020 1310" stroke="#ffffff" stroke-width="2" fill="none"/>
+  <path d="M60 1310 L40 1310 L40 1290" stroke="#ffffff" stroke-width="2" fill="none"/>
+
+</svg>

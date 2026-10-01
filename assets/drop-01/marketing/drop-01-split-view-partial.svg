@@ -1,0 +1,47 @@
+<svg width="1080" height="1350" viewBox="0 0 1080 1350" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .mono { font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace; }
+      .label { font-size: 14px; font-weight: 400; fill: #888888; letter-spacing: 0.15em; }
+      .border { stroke: #444444; stroke-width: 2; fill: none; }
+      .divider { stroke: #333333; stroke-width: 2; }
+      .accent-line { stroke: #444444; stroke-width: 1; }
+    </style>
+  </defs>
+
+  <!-- Top-left polygon (Tank) -->
+  <polygon points="40,40 1040,40 1040,500 40,800" fill="#1a1a1a" stroke="none"/>
+
+  <!-- Bottom-right polygon (Hoodie) -->
+  <polygon points="40,800 1040,500 1040,1310 40,1310" fill="#2a2a2a" stroke="none"/>
+
+  <!-- Main diagonal divider (left to right, partial height) -->
+  <line x1="40" y1="800" x2="1040" y2="500" class="divider"/>
+
+  <!-- Parallel accent lines -->
+  <line x1="40" y1="815" x2="1040" y2="515" class="accent-line"/>
+  <line x1="40" y1="785" x2="1040" y2="485" class="accent-line"/>
+
+  <!-- Tick marks along divider -->
+  <line x1="240" y1="740" x2="240" y2="720" class="accent-line"/>
+  <line x1="440" y1="680" x2="440" y2="660" class="accent-line"/>
+  <line x1="640" y1="620" x2="640" y2="600" class="accent-line"/>
+  <line x1="840" y1="560" x2="840" y2="540" class="accent-line"/>
+
+  <!-- Outer border -->
+  <rect x="40" y="40" width="1000" height="1270" class="border" rx="0"/>
+
+  <!-- Product labels -->
+  <rect x="60" y="60" width="180" height="30" fill="#0a0a0a" fill-opacity="0.85"/>
+  <text x="70" y="80" class="mono label">01 CUTOFF TANK</text>
+
+  <rect x="840" y="1240" width="180" height="30" fill="#0a0a0a" fill-opacity="0.85"/>
+  <text x="850" y="1260" class="mono label">02 HOODIE</text>
+
+  <!-- Corner accents -->
+  <path d="M40 60 L40 40 L60 40" stroke="#ffffff" stroke-width="2" fill="none"/>
+  <path d="M1020 40 L1040 40 L1040 60" stroke="#ffffff" stroke-width="2" fill="none"/>
+  <path d="M1040 1290 L1040 1310 L1020 1310" stroke="#ffffff" stroke-width="2" fill="none"/>
+  <path d="M60 1310 L40 1310 L40 1290" stroke="#ffffff" stroke-width="2" fill="none"/>
+
+</svg>
