@@ -255,3 +255,18 @@ function tid_ajax_add_to_cart() {
         ]);
     }
 }
+
+/**
+ * Auto-complete orders when Tapstitch shipping note is added
+ */
+add_action('woocommerce_new_order_note', 'tid_complete_order_on_tapstitch_shipment', 10, 2);
+
+function tid_complete_order_on_tapstitch_shipment($note_id, $order) {
+    $note = get_comment($note_id);
+    $note_content = $note->comment_content;
+
+    // Check for Tapstitch shipping notification
+    if (strpos($note_content, 'Your package has been shipped') !== false) {
+        $order->update_status('completed', 'Auto-completed: Tapstitch shipment confirmed.');
+    }
+}
