@@ -18,6 +18,9 @@ define('TID_PLUGIN_URL', plugin_dir_url(__FILE__));
 // Include product configuration helper
 require_once TID_PLUGIN_DIR . 'includes/class-product-config.php';
 
+// Include delivery tracker for AfterShip integration
+require_once TID_PLUGIN_DIR . 'includes/class-delivery-tracker.php';
+
 /**
  * Main plugin class
  */
@@ -196,6 +199,9 @@ add_action('plugins_loaded', function() {
         return;
     }
     true_impulse_drop();
+
+    // Initialize delivery tracker
+    TID_Delivery_Tracker::instance();
 });
 
 /**
@@ -258,6 +264,7 @@ function tid_ajax_add_to_cart() {
 
 /**
  * Auto-complete orders when Tapstitch shipping note is added
+ * Also extracts tracking info for delivery monitoring
  */
 add_action('woocommerce_new_order_note', 'tid_complete_order_on_tapstitch_shipment', 10, 2);
 
@@ -267,6 +274,11 @@ function tid_complete_order_on_tapstitch_shipment($note_id, $order) {
 
     // Check for Tapstitch shipping notification
     if (strpos($note_content, 'Your package has been shipped') !== false) {
+        // Extract tracking info and register with AfterShip
+        $tracker = TID_Delivery_Tracker::instance();
+        $tracker->process_shipping_note($note_content, $order);
+
+        // Auto-complete the order
         $order->update_status('completed', 'Auto-completed: Tapstitch shipment confirmed.');
     }
 }
