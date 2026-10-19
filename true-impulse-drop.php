@@ -266,14 +266,28 @@ function tid_ajax_add_to_cart() {
  * Auto-complete orders when Tapstitch shipping note is added
  * Also extracts tracking info for delivery monitoring
  */
-add_action('woocommerce_new_order_note', 'tid_complete_order_on_tapstitch_shipment', 10, 2);
+add_action('woocommerce_new_order_note', 'tid_complete_order_on_tapstitch_shipment', 10, 1);
 
-function tid_complete_order_on_tapstitch_shipment($note_id, $order) {
-    $note = get_comment($note_id);
-    $note_content = $note->comment_content;
+function tid_complete_order_on_tapstitch_shipment($note_data) {
+    // Handle both array (new format) and note ID (legacy)
+    if (is_array($note_data)) {
+        $order_id = $note_data['order_id'] ?? null;
+        $note_content = $note_data['customer_note'] ?? '';
+    } else {
+        // Legacy: note_id passed directly
+        $note = get_comment($note_data);
+        if (!$note) return;
+        $order_id = $note->comment_post_ID;
+        $note_content = $note->comment_content;
+    }
+
+    if (!$order_id) return;
 
     // Check for Tapstitch shipping notification
     if (strpos($note_content, 'Your package has been shipped') !== false) {
+        $order = wc_get_order($order_id);
+        if (!$order) return;
+
         // Extract tracking info and register with AfterShip
         $tracker = TID_Delivery_Tracker::instance();
         $tracker->process_shipping_note($note_content, $order);
